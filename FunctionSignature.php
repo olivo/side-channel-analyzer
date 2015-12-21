@@ -1,7 +1,7 @@
 <?php
 	// Represents a function signature in terms of its name,
 	// parameters and return type.
-	// It's used in maps to from functions to their CFGs.
+	// It's used in maps from functions to their CFGs.
 
 	class FunctionSignature {
 	      

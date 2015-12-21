@@ -27,7 +27,7 @@ function symbolic_execute($main_cfg,$function_cfgs,$function_signatures) {
 // accordingly.
 function symbolic_execute_rec($current_node,$function_cfgs,$function_signatures,$state,$path_constraints) {
 
-	 if($current_node->is_cond) {
+	 if(CFG::isCFGNodeCond($current_node)) {
 	 	// If it's a conditional node, add the path constraint if it's not a loop.
 		// Generate separate path conditions for the true and false branches.
 		$true_constraints = array();
@@ -42,8 +42,8 @@ function symbolic_execute_rec($current_node,$function_cfgs,$function_signatures,
 		// WARNING: Not adding the loop conditions at this point.
 		// If it's not a loop header, add the conditions to each branch.
 		if(!$current_node->is_loop_header) {
-			$true_constraints[] = $current_node->stmt;
-			$false_constraints[] = new PhpParser\Node\Expr\BooleanNot($current_node->stmt);
+			$true_constraints[] = $current_node->expr;
+			$false_constraints[] = new PhpParser\Node\Expr\BooleanNot($current_node->expr);
 			
 		 }
 		 

@@ -1,9 +1,12 @@
 <?php
 
-include_once "PHP-Parser-master/lib/bootstrap.php";
 include_once "CFGNode.php";
-include_once "StmtProcessing.php";
+include_once "CFGNodeCond.php";
+include_once "CFGNodeStmt.php";
 include_once "FunctionSignature.php";
+include_once "PHP-Parser-master/lib/bootstrap.php";
+include_once "StmtProcessing.php";
+
 
 // Class representing an entire CFG.
 // It contains an entry CFG node, and an exit CFG node.
@@ -17,19 +20,17 @@ class CFG {
 
       // Exit node.
       public $exit = NULL;
-
+      
       function __construct() {
 
       	       $this->entry = new CFGNode();
 	       $this->exit = new CFGNode();
-
       }
 
 	
-	// Construct the Control Flow Graph (CFG) from a 
-	// sequence of statements.
-
-	static function construct_cfg($stmts) {
+      // Construct the Control Flow Graph (CFG) from a 
+      // sequence of statements.
+      static function construct_cfg($stmts) {
 
 	       $prettyPrinter = new PhpParser\PrettyPrinter\Standard;
 
@@ -48,69 +49,89 @@ class CFG {
 	       	 printStmts(array($stmt));
 
 		 // Assignment statement.
-	       	 if($stmt instanceof PhpParser\Node\Expr\Assign) {
+	       	 if ($stmt instanceof PhpParser\Node\Expr\Assign) {
+
 		 	  print "Found assignment statement\n";
 			  $assign_node = CFG::processExprAssign($stmt);
 			  $current_node->successors[] = $assign_node;
+			  $assign_node->parents[] = $current_node;
 			  $current_node = $assign_node;
 			  print "Constructed assignment node\n";
 		  }
 		 // Assignment with operation statement.
-	       	 else if($stmt instanceof PhpParser\Node\Expr\AssignOp) {
+	       	 else if ($stmt instanceof PhpParser\Node\Expr\AssignOp) {
+
 		 	  print "Found assignment with operation statement\n";
 			  $assign_op_node = CFG::processExprAssignOp($stmt);
 			  $current_node->successors[] = $assign_op_node;
+			  $assign_op_node->parents[] = $current_node;
 			  $current_node = $assign_op_node;
 			  print "Constructed assignment with operation node\n";
 		  }
 		 //  Pre-decrement expression.
-	       	 else if($stmt instanceof PhpParser\Node\Expr\PreDec) {
+	       	 else if ($stmt instanceof PhpParser\Node\Expr\PreDec) {
+
 		 	  print "Found a pre-decrement expression\n";
 			  $predec_node = CFG::processExprPreDec($stmt);
 			  $current_node->successors[] = $predec_node;
+			  $predec_node->parents[] = $current_node;
 			  $current_node = $predec_node;
 			  print "Constructed pre-decrement expression.\n";
 		  }
 		 // Unset statement.
-	       	 else if($stmt instanceof PhpParser\Node\Stmt\Unset_) {
+	       	 else if ($stmt instanceof PhpParser\Node\Stmt\Unset_) {
+
 		 	  print "Found unset statement\n";
 			  $unset_node = CFG::processStmtUnset($stmt);
 			  $current_node->successors[] = $unset_node;
+			  $unset_node->parents[] = $current_node;
 			  $current_node = $unset_node;
 			  print "Constructed unset node\n";
 		  }
 		 // Global declaration statement.
-	       	 else if($stmt instanceof PhpParser\Node\Stmt\Global_) {
+	       	 else if ($stmt instanceof PhpParser\Node\Stmt\Global_) {
+
 		 	  print "Found global statement\n";
 			  $global_node = CFG::processStmtGlobal($stmt);
 			  $current_node->successors[] = $global_node;
+			  $global_node->parents[] = $current_node;
 			  $current_node = $global_node;
 			  print "Constructed global node\n";
 		  }
 		 // Break statement.
-	       	 else if($stmt instanceof PhpParser\Node\Stmt\Break_) {
+	       	 else if ($stmt instanceof PhpParser\Node\Stmt\Break_) {
+
 		 	  print "Found break statement\n";
 			  $break_node = CFG::processStmtBreak($stmt);
 			  $current_node->successors[] = $break_node;
+			  $break_node->parents[] = $current_node;
 			  $current_node = $break_node;
 			  print "Constructed break node\n";
 		  }
 		 // Return statement.
-	       	 else if($stmt instanceof PhpParser\Node\Stmt\Return_) {
+	       	 else if ($stmt instanceof PhpParser\Node\Stmt\Return_) {
+
 		 	  print "Found return statement\n";
 			  $return_node = CFG::processStmtReturn($stmt);
 			  $current_node->successors[] = $return_node;
+			  $return_node->parents[] = $current_node;
 			  $current_node = $return_node;
 			  print "Constructed return node\n";
 		  }
 		  // If statement.
-		  else if($stmt instanceof PhpParser\Node\Stmt\If_) {
+		  else if ($stmt instanceof PhpParser\Node\Stmt\If_) {
+
+		          // Note: What happens on if-elsif-elsif-else ?
 		          print "Found conditional statement\n";
 			  $if_nodes = CFG::processStmtIf($stmt);
 
 			  // Connect the current node with the 
 			  // conditional node of the if.
 			  $current_node->successors[]=$if_nodes[0];
+
+			  // The previously processed node is the parent of 
+			  // the conditional node.
+			  $if_nodes[0]->parents[] = $current_node; 
 
 			  // Make the current node, the node that 
 			  // joins the branches of the if.
@@ -119,42 +140,37 @@ class CFG {
 		       	  print "Constructed conditional node\n";
 
 		  // Method call statement.
-		  } else if($stmt instanceof PhpParser\Node\Expr\MethodCall) {
+		  } else if ($stmt instanceof PhpParser\Node\Expr\MethodCall) {
 
 		 	  print "Found method call statement\n";
 			  $method_call_node = CFG::processExprMethodCall($stmt);
 			  $current_node->successors[] = $method_call_node;
+			  $method_call_node->parents[] = $current_node;
 			  $current_node = $method_call_node;
 			  print "Constructed method call node\n";
 
-
-		  
-
 		  // Function call statement.
-		  } else if($stmt instanceof PhpParser\Node\Expr\FuncCall) {
+		  } else if ($stmt instanceof PhpParser\Node\Expr\FuncCall) {
 
 		 	  print "Found function call statement\n";
 			  $function_call_node = CFG::processExprFuncCall($stmt);
 			  $current_node->successors[] = $function_call_node;
+			  $function_call_node->parents[] = $current_node;
 			  $current_node = $function_call_node;
 			  print "Constructed function call node\n";
-
-
 		  
 		  // Static function call statement.
-		  } else if($stmt instanceof PhpParser\Node\Expr\StaticCall) {
+		  } else if ($stmt instanceof PhpParser\Node\Expr\StaticCall) {
 
 		 	  print "Found static call statement\n";
 			  $static_call_node = CFG::processExprStaticCall($stmt);
 			  $current_node->successors[] = $static_call_node;
+			  $static_call_node->parents[] = $current_node;
 			  $current_node = $static_call_node;
-			  print "Constructed static call node\n";
-
-
-		  
+			  print "Constructed static call node\n";		  
 
 		  // Foreach statement.
-		  } else if($stmt instanceof PhpParser\Node\Stmt\Foreach_) {
+		  } else if ($stmt instanceof PhpParser\Node\Stmt\Foreach_) {
 
 		 	  print "Found Foreach statement\n";
 			  // Returns a pair with the loop header 
@@ -164,6 +180,7 @@ class CFG {
 
 			  // Connect the current node to the loop header.
 			  $current_node->successors[] = $foreach_nodes[0];
+			  $foreach_nodes[0]->parents[] = $current_node;
 
 			  // Make the dummy exit node of the loop
 			  // the current node.
@@ -172,7 +189,7 @@ class CFG {
 			  print "Constructed Foreach node\n";
 
 		  // For statement.
-		  } else if($stmt instanceof PhpParser\Node\Stmt\For_) {
+		  } else if ($stmt instanceof PhpParser\Node\Stmt\For_) {
 
 		 	  print "Found For statement\n";
 			  // Returns a pair with the loop header 
@@ -182,6 +199,7 @@ class CFG {
 
 			  // Connect the current node to the loop header.
 			  $current_node->successors[] = $for_nodes[0];
+			  $for_nodes[0]->parents[] = $current_node;
 
 			  // Make the dummy exit node of the loop
 			  // the current node.
@@ -212,17 +230,18 @@ class CFG {
 	// from the last processed node to the exit node.
 	$cfg->exit = new CFGNode();
 	$current_node->successors[] = $cfg->exit;
+	$cfg->exit->parents[] = $current_node;
 
 	return $cfg;
 					
-}	
+}
 
 // Constructs a node for an assignment expression.
 static function processExprAssign($exprAssign) {
 
 	// $exprAssign has keys 'var' and 'expr'.
 
-	$cfg_node = new CFGNode();
+	$cfg_node = new CFGNodeStmt();
 	$cfg_node->stmt = $exprAssign;
 
 	return $cfg_node;
@@ -234,7 +253,7 @@ static function processExprAssignOp($exprAssignOp) {
 	// $exprAssign has keys 'var' and 'expr'.
 	// It can be extended by classes Div, Minus, Plus, etc.
 
-	$cfg_node = new CFGNode();
+	$cfg_node = new CFGNodeStmt();
 	$cfg_node->stmt = $exprAssignOp;
 
 	return $cfg_node;
@@ -245,7 +264,7 @@ static function processExprPreDec($exprPreDec) {
 
 	// $exprPreDec has key 'var'.
 
-	$cfg_node = new CFGNode();
+	$cfg_node = new CFGNodeStmt();
 	$cfg_node->stmt = $exprPreDec;
 
 	return $cfg_node;
@@ -256,7 +275,7 @@ static function processStmtUnset($stmtUnset) {
 
 	// $stmtUnset has keys 'vars'.
 
-	$cfg_node = new CFGNode();
+	$cfg_node = new CFGNodeStmt();
 	$cfg_node->stmt = $stmtUnset;
 
 	return $cfg_node;
@@ -267,7 +286,7 @@ static function processStmtGlobal($stmtGlobal) {
 
 	// $stmtGlobal has keys 'vars'.
 
-	$cfg_node = new CFGNode();
+	$cfg_node = new CFGNodeStmt();
 	$cfg_node->stmt = $stmtGlobal;
 
 	return $cfg_node;
@@ -278,7 +297,7 @@ static function processStmtBreak($stmtBreak) {
 
 	// $stmtBreak has keys 'num'.
 
-	$cfg_node = new CFGNode();
+	$cfg_node = new CFGNodeStmt();
 	$cfg_node->stmt = $stmtBreak;
 
 	return $cfg_node;
@@ -289,7 +308,7 @@ static function processStmtReturn($stmtReturn) {
 
 	// $stmt has key 'expr'.
 
-	$cfg_node = new CFGNode();
+	$cfg_node = new CFGNodeStmt();
 	$cfg_node->stmt = $stmtReturn;
 
 	return $cfg_node;
@@ -302,7 +321,7 @@ static function processExprMethodCall($exprMethodCall) {
 
 	// $exprMethodCall has keys 'var', 'name' and 'args'.
 
-	$cfg_node = new CFGNode();
+	$cfg_node = new CFGNodeStmt();
 	$cfg_node->stmt = $exprMethodCall;
 
 	return $cfg_node;
@@ -314,7 +333,7 @@ static function processExprFuncCall($exprFuncCall) {
 
 	// exprFuncCall has keys 'name' and 'args'.
 
-	$cfg_node = new CFGNode();
+	$cfg_node = new CFGNodeStmt();
 	$cfg_node->stmt = $exprFuncCall;
 
 	return $cfg_node;
@@ -326,7 +345,7 @@ static function processExprStaticCall($exprStaticCall) {
 
 	// exprFuncCall has keys 'class', 'name' and 'args'.
 
-	$cfg_node = new CFGNode();
+	$cfg_node = new CFGNodeStmt();
 	$cfg_node->stmt = $exprStaticCall;
 
 	return $cfg_node;
@@ -353,9 +372,8 @@ static function processStmtIf($stmtIf) {
 	$body_nodes = array();
 
 	// Create and add the top condition node.
-	$cond_node = new CFGNode();
-	$cond_node->stmt = $stmtIf->cond;
-	$cond_node->is_cond = TRUE;
+	$cond_node = new CFGNodeCond();
+	$cond_node->expr = $stmtIf->cond;
 	$cond_nodes[] = $cond_node;
 	
 	// Create and add the true branch of the top condition node.
@@ -365,8 +383,8 @@ static function processStmtIf($stmtIf) {
 	// Create and add the condition nodes for the else if clauses.
 	foreach($stmtIf->elseifs as $elseif) {
 
-		$cond_node = new CFGNode();
-		$cond_node->stmt = $elseif->cond;		
+		$cond_node = new CFGNodeCond();
+		$cond_node->expr = $elseif->cond;		
 		$cond_node->is_cond = TRUE;
 		$cond_nodes[] = $cond_node;
 
@@ -376,36 +394,49 @@ static function processStmtIf($stmtIf) {
 	 }
 
 	 // Create and add the else body node if it exists
-	 if($stmtIf->else) {
+	 if ($stmtIf->else) {
 	 	$body_node = CFG::construct_cfg($stmtIf->else->stmts);
 		$body_nodes[] = $body_node;
 	  }
 
 	// Create a dummy exit node from which the branch CFGs point to.
-	$dummy_exit = new CFGNode();
+	$dummy_exit = new CFGNodeStmt();
 
 	// Link the exits of all the body nodes to the dummy exit node.
-	foreach($body_nodes as $body_node) 
-			    $body_node->exit->successors[] = $dummy_exit;
+	foreach($body_nodes as $body_node) { 
+	
+		    $body_node->exit->successors[] = $dummy_exit;
+		    $dummy_exit->parents[] = $body_node->exit;
+	}
 
 	// Link the condition nodes to their corresponding entries of the body nodes.
-	for($i=0;$i<count($cond_nodes);$i++)
+	for($i=0;$i<count($cond_nodes);$i++) {
+
 		$cond_nodes[$i]->successors[] = $body_nodes[$i]->entry;
+		$body_nodes[$i]->entry->parents[] = $cond_nodes[$i];
+	}
 
 	// Link each condition node to the next condition node.
-	for($i=0;$i<count($cond_nodes)-1;$i++)
-		$cond_nodes[i]->successors[] = $cond_nodes[i+1];
+	for($i=0;$i<count($cond_nodes)-1;$i++) {
+
+		$cond_nodes[$i]->successors[] = $cond_nodes[$i+1];
+		$cond_nodes[$i+1]->parents[] = $cond_nodes[$i];
+	}
 
 	//Link the last condition node to the next body node if it exists or the dummy exit node.
 	$last_index = count($cond_nodes)-1;
-	if($last_index+1<count($body_nodes))
+	if ($last_index+1<count($body_nodes)) {
+	
 		$cond_nodes[$last_index]->successors[] = $body_nodes[$last_index+1]->entry;
-	else
+		$body_nodes[$last_index+1]->entry->parents[] = $cond_nodes[$last_index];
+	} else {
+	
 		$cond_nodes[$last_index]->successors[] = $dummy_exit;
+		$dummy_exit->parents[] = $cond_nodes[$last_index];
+	}
 
 	// Return the top condition node and the dummy exit node.
 	return array($cond_nodes[0],$dummy_exit);
-
 }
 
 // Constructs a node for an include expression.
@@ -414,7 +445,7 @@ static function processExprInclude($exprInclude) {
 
 	// exprInclude has keys 'expr' and 'type'.
 	print("WARNING:Expr Include not handled properly.\n");
-	$cfg_node = new CFGNode();
+	$cfg_node = new CFGNodeStmt();
 
 	return $cfg_node;
 }
@@ -434,24 +465,24 @@ static function processStmtForeach($stmtForeach) {
 	// and optionally 'subNodes' which contains 'keyVar' and 'byRef'
 
 	// Create the CFG node for the loop header.
-	$header_node = new CFGNode();
-	// The stmt in the header node is the pair ($collection,$var),
+	$header_node = new CFGNodeCond();
+	// The expr in the header node is the pair ($collection,$var),
 	// where the condition of the foreach is $
-	$header_node->stmt = array($stmtForeach->expr,
+	$header_node->expr = array($stmtForeach->expr,
 				   $stmtForeach->valueVar);
 
-	$header_node->is_cond = TRUE;
 	$header_node->is_loop_header = TRUE;
 	$header_node->loop_type = CFGNode::FOREACH_LOOP;
 
 	// Create the dummy exit node.
-	$dummy_exit = new CFGNode();
+	$dummy_exit = new CFGNodeStmt();
 
 	// Create the CFG for the body of the loop.
 	$body_cfg = CFG::construct_cfg($stmtForeach->stmts);
 
 	// Link the exit of the body CFG to the loop header.
 	$body_cfg->exit->successors[] = $header_node;
+	$header_node->parents[] = $body_cfg_exit;
 
 	// Assert that the edge from the exit of the body CFG to 
 	// the loop header is a backedge
@@ -460,9 +491,11 @@ static function processStmtForeach($stmtForeach) {
 
 	// Link the header node to the entry of the body CFG.
 	$header_node->successors[] = $body_cfg->entry;
+	$body_cfg->entry->parents[] = $header_node;
 
 	// Link the header node to the dummy exit node.
 	$header_node->successors[] = $dummy_exit;
+	$dummy_exit->parents[] = $header_node;
 
 	return array($header_node,$dummy_exit);
 }
@@ -481,13 +514,13 @@ static function processStmtFor($stmtFor) {
 	// $stmtFor has keys 'init', 'cond', 'loop' and 'stmts'.
 
 	// Create the CFG node for the loop header.
-	$header_node = new CFGNode();
-	// The stmt in the header node is the triple ($init,$cond,$loop),
+	$header_node = new CFGNodeCond();
+	// The expr in the header node is the triple ($init,$cond,$loop),
 	// where 'init' is an array of initializations expressions,
 	// 'cond' are loop conditions, and 'loop' are 
 	// incrementing expressions.
  
-	$header_node->stmt = array($stmtFor->init,
+	$header_node->expr = array($stmtFor->init,
 				   $stmtFor->cond,
 				   $stmtFor->loop);
 
@@ -495,9 +528,8 @@ static function processStmtFor($stmtFor) {
 	//print "The cond value is :".printStmts($stmtFor->cond)."\n";
 	//print "The loop value is :".printStmts($stmtFor->loop)."\n";
 
-	$header_node->is_cond = TRUE;
 	$header_node->is_loop_header = TRUE;
-	$header_node->loop_type = CFGNode::FOR_LOOP;
+	$header_node->loop_type = CFGNodeCond::FOR_LOOP;
 
 	// Create the dummy exit node.
 	$dummy_exit = new CFGNode();
@@ -507,99 +539,57 @@ static function processStmtFor($stmtFor) {
 
 	// Link the exit of the body CFG to the loop header.
 	$body_cfg->exit->successors[] = $header_node;
+	$header_node->parents[] = $body_cfg->exit;
 
 	// Assert that exit of the body CFG has a back edge to the header.
 	$body_cfg->exit->has_backedge = TRUE;
 
 	// Link the header node to the entry of the body CFG.
 	$header_node->successors[] = $body_cfg->entry;
+	$body_cfg->entry->parents[] = $header_node;
 
 	// Link the header node to the dummy exit node.
 	$header_node->successors[] = $dummy_exit;
+	$dummy_exit->parents[] = $header_node;
 
 	return array($header_node,$dummy_exit);
 }
 
 // Prints a CFG starting from the root node.
 // WARNING: Only printing the true branches of the conditionals.
-function print_cfg() {
+function print_preorder_cfg() {
 	 
 	 print "Starting to print CFG\n";
-	 print "WARNING: Only printing the true branches of the conditionals\n";
 
-	 // Skip the first node, because it's a dummy entry node.
-	 $current_node=$this->entry;
-	 $successor_list = $current_node->successors;
-	 $current_node=$successor_list[0];
+	 $visited = new SplObjectStorage();
+
+	 CFG::print_preorder($this->entry, $visited);
+}
+// OSWALDO.
+// TODO: Finish writing the preorder traversal.
+function print_preorder($cfg_node, $visited) {
+
+	 if (!$cfg_node || $visited->contains($cfg_node)) {
+	 		return;
+	 }
+
+	 $visited->attach($cfg_node);
+
+	 if (CFGNode::isCFGNodeStmt($cfg_node)) {
+
+	    if ($cfg_node->stmt) {
+	       printStmts(array($cfg_node->stmt));
+	    }
+	 } else if (CFGNode::isCFGNodeCond($cfg_node)) {
+	       // TODO: Figure out how to print 
+	       // conditional nodes.
+	       print("WARNING: Conditional node not printed\n");
+	 }
 	 
+	 for ($i = 0; $i < count($cfg_node->successors); $i++) {
 
-	 do {
-
-	 	if($current_node->stmt) {
-			if(!$current_node->loop_type) {
-			print "Statement in node.\n";
-			printStmts(array($current_node->stmt));
-			print "With type: ".($current_node->stmt->getType())."\n";
-			print "It has ".(count($current_node->successors)) ." successors.\n";
-			if($current_node->is_cond)
-				print "It is a CONDITIONAL\n";
-
-			/*
-		       // If it's a back-edge stop.
-		       if($current_node->has_backedge)
-		       		       break;
-		       */
-		       $current_node = $current_node->successors[0];
-
-    			 }
-			 else {
-			      if($current_node->loop_type==
-				 CFGNode::FOREACH_LOOP) {
-				  	 
-			     	  // If it's a foreach node, print the 
-			      	  // header especially, and continue on the
-			      	  // false branch -- to avoid infinite
-			      	  // loops.
-				  print "It is a foreach\n";
-
-			      	  printStmts(array($current_node->stmt[0],
-					       $current_node->stmt[1]));
-
-			          print "It is a CONDITIONAL\n";
-			       }
-			       else if($current_node->loop_type==
-			       	    CFGNode::FOR_LOOP) {
-				    // It is a for loop.
-				    print "It is a for loop!\n";
-				    
-				    print "Initialization:\n";
-				    printStmts($current_node->stmt[0]); 
-
-				    print "Condition:\n";
-				    printStmts($current_node->stmt[1]); 
-
-				    print "Increment:\n";
-				    printStmts($current_node->stmt[2]); 
-
-				    print "It is CONDITIONAL\n";
-				    }
-			       else {
-			       	  print "WARNING: Unhandled loop type in print_cfg()\n";
-			       }
-// WARNING: Generates an infinite loop.
-			      $current_node=$current_node->successors[1];     	      //$current_node=$current_node->successors[0];     
-
-			 }
-		 }		 	      
-		 else {
-		       print "Skipping null node\n";
-		       $current_node = $current_node->successors[0];
-		 }
-		 
-
-	 } while(count($current_node->successors));
-	
-
+	     CFG::print_preorder($cfg_node->successors[$i], $visited);
+	 }
 }
 
 
@@ -676,8 +666,8 @@ static function construct_file_cfgs($filename) {
 	$main_cfg = CFG::construct_cfg($stmts);
 	echo "Finished construction of the main CFG.\n";
 
-	echo "The main CFG is:\n";
-	$main_cfg->print_cfg();
+	echo "The main in-order traversal of the CFG is:\n";
+	$main_cfg->print_preorder_cfg();
 
 /*
 	echo "The CFGs of the inner functions are:\n";

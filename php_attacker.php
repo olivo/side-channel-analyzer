@@ -13,7 +13,7 @@ $filename = $argv[1];
 $file_cfgs = CFG::construct_file_cfgs($filename);
 
 // Perform symbolic execution on the main cfg.
-symbolic_execute($file_cfgs[0],$file_cfgs[1],$file_cfgs[2]);
+//symbolic_execute($file_cfgs[0],$file_cfgs[1],$file_cfgs[2]);
 
 
 ?>

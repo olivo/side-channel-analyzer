@@ -1,1 +1,1 @@
-php php_attacker.php ../benchmarks/hotcrp/paper.php
+php php_attacker.php /var/www/html/openclinic/medical/patient_search.php
