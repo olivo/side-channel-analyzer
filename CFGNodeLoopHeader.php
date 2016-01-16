@@ -4,10 +4,14 @@ include_once "CFGNode.php";
 // Class that represents a loop header.
 class CFGNodeLoopHeader extends CFGNode {
 
+// Loop statement associated with the header.
+public $stmt = NULL;
+
 public function __construct() {
 
        parent::__construct();	      	     
 
+       $this->stmt = NULL;
 }
 
 // The loop entry node is the first successor.
