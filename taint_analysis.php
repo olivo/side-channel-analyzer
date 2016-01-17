@@ -15,8 +15,7 @@ function isTainted($expr, $taint_variables) {
        if ($expr instanceof PhpParser\Node\Expr\StaticCall) {
        	  
 	  $function_name = $expr->name;
-
-	  return strcmp($function_name, 'postGetSessionInt') == 0;
+	  return strcmp($function_name, 'postGetSessionInt') == 0 || strcmp($function_name, 'postGetSessionString') == 0 ;
        }
        else if ($expr instanceof PhpParser\Node\Expr\Variable) {
 
@@ -49,6 +48,9 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 	       $current_node = $q->dequeue();
 	       $visited_nodes->attach($current_node);
 
+	       print "Started processing node: \n";
+	       CFGNode::printCFGNode($current_node);
+
 	       // Check if the current node is a statement node with a 
 	       // non-null statement.
 	       if (CFGNode::isCFGNodeStmt($current_node) && $current_node->stmt) {
@@ -74,6 +76,16 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 		       }
 	       }
 	}
+
+	print "==============================\n";
+	print "The tainted variables are:\n";
+	foreach ($taint_variables as $tv) {
+
+	    print $tv->name . " ";
+	}
+	print "\n";
+	print "==============================\n";
+
 }
 
 ?>
