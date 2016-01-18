@@ -10,7 +10,6 @@ public $successors = array();
 // The pointer to the parents CFG node.
 public $parents = array();
 
-	
 public function __construct() {
 	      	     
 	$this->successors = array();
@@ -26,6 +25,12 @@ public function isCFGNodeCond($cfg_node) {
 
        return ($cfg_node instanceof CFGNodeCond);
 }
-	
+
+// Printing function for the node.
+public function printCFGNode() {
+
+       print "Generic CFG Node.\n";
+}
+
 }
 ?>

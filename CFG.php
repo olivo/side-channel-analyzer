@@ -2,6 +2,7 @@
 
 include_once "CFGNode.php";
 include_once "CFGNodeCond.php";
+include_once "CFGNodeLoopHeader.php";
 include_once "CFGNodeStmt.php";
 include_once "FunctionSignature.php";
 include_once "PHP-Parser-master/lib/bootstrap.php";
@@ -385,7 +386,6 @@ static function processStmtIf($stmtIf) {
 
 		$cond_node = new CFGNodeCond();
 		$cond_node->expr = $elseif->cond;		
-		$cond_node->is_cond = TRUE;
 		$cond_nodes[] = $cond_node;
 
 		$body_node = CFG::construct_cfg($elseif->stmts);
@@ -472,7 +472,7 @@ static function processStmtForeach($stmtForeach) {
 				   $stmtForeach->valueVar);
 
 	$header_node->is_loop_header = TRUE;
-	$header_node->loop_type = CFGNode::FOREACH_LOOP;
+	$header_node->loop_type = CFGNodeLoopHeader::FOREACH_LOOP;
 
 	// Create the dummy exit node.
 	$dummy_exit = new CFGNodeStmt();
@@ -529,7 +529,7 @@ static function processStmtFor($stmtFor) {
 	//print "The loop value is :".printStmts($stmtFor->loop)."\n";
 
 	$header_node->is_loop_header = TRUE;
-	$header_node->loop_type = CFGNodeCond::FOR_LOOP;
+	$header_node->loop_type = CFGNodeLoopHeader::FOR_LOOP;
 
 	// Create the dummy exit node.
 	$dummy_exit = new CFGNode();

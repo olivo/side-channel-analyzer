@@ -8,17 +8,22 @@ class CFGNodeStmt extends CFGNode {
 // The statement contained in the node.
 public $stmt = NULL;
 
-// Boolean that represents whether the successor of the current node 
-// is traversed by a back_edge.
+// Determines whether the successor of this node is reached by a back edge.
 public $has_backedge = FALSE;
-
 
 public function __construct() {
 
        parent::__construct();
 
        $this->stmt = NULL;
-       $this->has_backedge = FALSE;
+
+       $this->back_edge = FALSE;
+}
+
+// Printout function.
+public function printCFGNode() {
+
+       print "Statement Node.\n";
 }
 	
 }

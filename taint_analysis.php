@@ -49,7 +49,7 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 	       $visited_nodes->attach($current_node);
 
 	       print "Started processing node: \n";
-	       CFGNode::printCFGNode($current_node);
+	       $current_node->printCFGNode();
 
 	       // Check if the current node is a statement node with a 
 	       // non-null statement.
@@ -66,7 +66,7 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 	       }
 
 	       print "Finished processing node: \n";
-	       CFGNode::printCFGNode($current_node);
+	       $current_node->printCFGNode();
 
 	       // Add the successors of the current node to the queue.
 	       foreach ($current_node->successors as $successor) {
