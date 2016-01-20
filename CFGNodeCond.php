@@ -30,7 +30,15 @@ public function getFalseSuccessor() {
 // Printout function.
 public function printCFGNode() {
 
-       print "Conditional Node.\n";
+       if ($this->expr) {
+
+       	  print "[Conditional Node] : ";
+	  printExpr($this->expr);
+       }
+       else {
+       	      
+       	  print "[Conditional Dummy Node]\n";   
+       }
 }
 	
 }

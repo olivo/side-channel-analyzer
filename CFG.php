@@ -465,13 +465,12 @@ static function processStmtForeach($stmtForeach) {
 	// and optionally 'subNodes' which contains 'keyVar' and 'byRef'
 
 	// Create the CFG node for the loop header.
-	$header_node = new CFGNodeCond();
+	$header_node = new CFGNodeLoopHeader();
 	// The expr in the header node is the pair ($collection,$var),
 	// where the condition of the foreach is $
 	$header_node->expr = array($stmtForeach->expr,
 				   $stmtForeach->valueVar);
 
-	$header_node->is_loop_header = TRUE;
 	$header_node->loop_type = CFGNodeLoopHeader::FOREACH_LOOP;
 
 	// Create the dummy exit node.
@@ -514,7 +513,7 @@ static function processStmtFor($stmtFor) {
 	// $stmtFor has keys 'init', 'cond', 'loop' and 'stmts'.
 
 	// Create the CFG node for the loop header.
-	$header_node = new CFGNodeCond();
+	$header_node = new CFGNodeLoopHeader();
 	// The expr in the header node is the triple ($init,$cond,$loop),
 	// where 'init' is an array of initializations expressions,
 	// 'cond' are loop conditions, and 'loop' are 
@@ -528,7 +527,6 @@ static function processStmtFor($stmtFor) {
 	//print "The cond value is :".printStmts($stmtFor->cond)."\n";
 	//print "The loop value is :".printStmts($stmtFor->loop)."\n";
 
-	$header_node->is_loop_header = TRUE;
 	$header_node->loop_type = CFGNodeLoopHeader::FOR_LOOP;
 
 	// Create the dummy exit node.

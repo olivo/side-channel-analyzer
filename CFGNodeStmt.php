@@ -1,5 +1,6 @@
 <?php
 include_once "CFGNode.php";
+include_once "StmtProcessing.php";
 
 // Class that corresponds to an individual statement CFG node (assignment, method calls, etc.).
 
@@ -23,7 +24,15 @@ public function __construct() {
 // Printout function.
 public function printCFGNode() {
 
-       print "Statement Node.\n";
+       if ($this->stmt) {
+
+              print "[Stmt Node] : ";
+       	      printStmts(array($this->stmt));
+       }
+       else {
+
+              print "[Dummy Node]\n";
+       }
 }
 	
 }
