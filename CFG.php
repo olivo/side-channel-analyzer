@@ -466,10 +466,8 @@ static function processStmtForeach($stmtForeach) {
 
 	// Create the CFG node for the loop header.
 	$header_node = new CFGNodeLoopHeader();
-	// The expr in the header node is the pair ($collection,$var),
-	// where the condition of the foreach is $
-	$header_node->expr = array($stmtForeach->expr,
-				   $stmtForeach->valueVar);
+
+	$header_node->expr = $stmtFor;
 
 	$header_node->loop_type = CFGNodeLoopHeader::FOREACH_LOOP;
 
@@ -514,14 +512,8 @@ static function processStmtFor($stmtFor) {
 
 	// Create the CFG node for the loop header.
 	$header_node = new CFGNodeLoopHeader();
-	// The expr in the header node is the triple ($init,$cond,$loop),
-	// where 'init' is an array of initializations expressions,
-	// 'cond' are loop conditions, and 'loop' are 
-	// incrementing expressions.
  
-	$header_node->expr = array($stmtFor->init,
-				   $stmtFor->cond,
-				   $stmtFor->loop);
+	$header_node->expr = $stmtFor;
 
 	//print "The init value is :".printStmts($stmtFor->init)."\n";
 	//print "The cond value is :".printStmts($stmtFor->cond)."\n";
