@@ -95,7 +95,6 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 	       }
 	}
 
-/*
 	print "==============================\n";
 	print "The tainted variables at the exit node are:\n";
 	foreach ($tainted_variables_map[$main_cfg->exit] as $tv) {
@@ -104,7 +103,7 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 	}
 	print "\n";
 	print "==============================\n";
-*/
+
 }
 
 ?>
