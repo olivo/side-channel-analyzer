@@ -84,6 +84,11 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 	       print "Finished processing node: \n";
 	       $current_node->printCFGNode();
 
+	       foreach ($tainted_variables_map[$current_node] as $tv) {
+	       	       print $tv->name . " ";
+	       }
+	       print "\n";
+
 	       // Add the successors of the current node to the queue, if the tainted set has changed or the successor hasn't been visited.
 
 	       foreach ($current_node->successors as $successor) {
