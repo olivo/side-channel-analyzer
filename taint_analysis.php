@@ -5,23 +5,39 @@ include_once "CFGNodeCond.php";
 include_once "CFGNodeStmt.php";
 include_once "PHP-Parser-master/lib/bootstrap.php";
 include_once "StmtProcessing.php";
+include_once "TaintedVariables.php";
 
 // TODO: Change hardwired notions of taint for a specific application.
 // Checks whether an expression is tainted, by checking whether a parameter is a tainted variable or a user input.
-function isTainted($expr, $taint_variables) {
+function isTainted($expr, $tainted_variables) {
 
        // For now, checking that the expression is either a function call of 'postGetSession' or a variable already in the tainted set.
 
-       if ($expr instanceof PhpParser\Node\Expr\StaticCall) {
-       	  
+       if ($expr instanceof PhpParser\Node\Expr\StaticCall || $expr instanceof PhpParser\Node\Expr\FuncCall) {
+
+       	  print "Analyzing static call for taint\n";       	  
 	  $function_name = $expr->name;
-	  return strcmp($function_name, 'postGetSessionInt') == 0 || strcmp($function_name, 'postGetSessionString') == 0 ;
+
+	  // The expression is tainted if it invokes a basic user input extraction function.
+	  if (strcmp($function_name, 'postGetSessionInt') == 0 || strcmp($function_name, 'postGetSessionString') == 0) {
+
+	     return true;
+	  }
+
+	  // The expression is tainted if one of the arguments is tainted.
+	  foreach ($expr->args as $arg) {
+	  	  
+		  if(isTainted($arg->value, $tainted_variables)) {
+
+		  	return true;
+		  }
+	  }
        }
        else if ($expr instanceof PhpParser\Node\Expr\Variable) {
 
-	  $variable_name = $expr->name;
+       	  print "Analyzing variable for taint : " . ($expr->name) . "\n";
        
-	  return $tainted_variables->contains($variable_name);
+	  return $tainted_variables->contains($expr->name);
        }
        
        return false;
@@ -47,13 +63,13 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 
 	       if (!$tainted_variables_map->contains($current_node)) {
 
-	       	  $tainted_variables_map[$current_node] = new SplObjectStorage();
+	       	  $tainted_variables_map[$current_node] = new TaintedVariables();
 	       }
 
 	       print "Started processing node: \n";
 	       $current_node->printCFGNode();
 
-	       $initial_tainted_size = count($tainted_variables_map[$current_node]);
+	       $initial_tainted_size = $tainted_variables_map[$current_node]->count();
 
 	       // Check if the current node is a statement node with a 
 	       // non-null statement.
@@ -63,9 +79,9 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 	       	  // Check to see if the statement is an assigment,
 		  // and the right hand side is tainted.
 		  if (($stmt instanceof PhpParser\Node\Expr\Assign) && isTainted($stmt->expr, $tainted_variables_map[$current_node]) 
-		      && (!$tainted_variables_map[$current_node]->contains($stmt->var))) {
+		      && (!$tainted_variables_map[$current_node]->contains($stmt->var->name))) {
 
-		     $tainted_variables_map[$current_node]->attach($stmt->var);
+		     $tainted_variables_map[$current_node]->attach($stmt->var->name);
 		     print "The variable " . ($stmt->var->name) . " became tainted.\n";
 		  }
 	       }
@@ -79,14 +95,12 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 			}
 	       }
 
-	       $changed = $initial_tainted_size != count($tainted_variables_map[$current_node]);
+	       $changed = $initial_tainted_size != $tainted_variables_map[$current_node]->count();
 
 	       print "Finished processing node: \n";
 	       $current_node->printCFGNode();
 
-	       foreach ($tainted_variables_map[$current_node] as $tv) {
-	       	       print $tv->name . " ";
-	       }
+	       $tainted_variables_map[$current_node]->printTaintedVariables();
 	       print "\n";
 
 	       // Add the successors of the current node to the queue, if the tainted set has changed or the successor hasn't been visited.
@@ -102,10 +116,7 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 
 	print "==============================\n";
 	print "The tainted variables at the exit node are:\n";
-	foreach ($tainted_variables_map[$main_cfg->exit] as $tv) {
-
-	    print $tv->name . " ";
-	}
+	$tainted_variables_map[$main_cfg->exit]->printTaintedVariables();
 	print "\n";
 	print "==============================\n";
 
