@@ -11,6 +11,9 @@ include_once "TaintedVariables.php";
 // Checks whether an expression is tainted, by checking whether a parameter is a tainted variable or a user input.
 function isTainted($expr, $tainted_variables) {
 
+       print "Analyzing expression for taint.\n";
+       print "The class is " . get_class($expr) . "\n";
+
        // For now, checking that the expression is either a function call of 'postGetSession' or a variable already in the tainted set.
 
        if ($expr instanceof PhpParser\Node\Expr\StaticCall || $expr instanceof PhpParser\Node\Expr\FuncCall) {
@@ -38,6 +41,17 @@ function isTainted($expr, $tainted_variables) {
        	  print "Analyzing variable for taint : " . ($expr->name) . "\n";
        
 	  return $tainted_variables->contains($expr->name);
+       }
+       else if ($expr instanceof PhpParser\Node\Expr\BinaryOp) {
+
+       	  print "Analyzing binary op for taint.\n";
+	  return isTainted($expr->left, $tainted_variables) || 
+	  	 isTainted($expr->right, $tainted_variables);
+       }
+       else if ($expr instanceof PhpParser\Node\Expr\ArrayDimFetch) {
+
+       	  print "Analyzing array fetch expression for taint.\n";
+	  return isTainted($expr->var, $tainted_variables) || isTainted($expr->dim, $tainted_variables);
        }
        
        return false;
@@ -88,7 +102,7 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 	       	  $stmt = $current_node->stmt;
 	       	  // Check to see if the statement is an assigment,
 		  // and the right hand side is tainted.
-		  if (($stmt instanceof PhpParser\Node\Expr\Assign) && isTainted($stmt->expr, $tainted_variables_map[$current_node]) 
+		  if ((($stmt instanceof PhpParser\Node\Expr\Assign) || ($stmt instanceof PhpParser\Node\Expr\AssignOp)) && isTainted($stmt->expr, $tainted_variables_map[$current_node]) 
 		      && (!$tainted_variables_map[$current_node]->contains($stmt->var->name))) {
 
 		     $tainted_variables_map[$current_node]->attach($stmt->var->name);
