@@ -71,6 +71,16 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 
 	       $initial_tainted_size = $tainted_variables_map[$current_node]->count();
 
+	       // Add the taint sets of the parents.
+	       foreach($current_node->parents as $parent) {
+	       		
+			if ($tainted_variables_map->contains($parent)) {
+
+			   $tainted_variables_map[$current_node]->addAll($tainted_variables_map[$parent]);
+			}
+	       }
+
+
 	       // Check if the current node is a statement node with a 
 	       // non-null statement.
 	       if (CFGNode::isCFGNodeStmt($current_node) && $current_node->stmt) {
@@ -84,15 +94,6 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 		     $tainted_variables_map[$current_node]->attach($stmt->var->name);
 		     print "The variable " . ($stmt->var->name) . " became tainted.\n";
 		  }
-	       }
-
-	       // Add the taint sets of the parents.
-	       foreach($current_node->parents as $parent) {
-	       		
-			if ($tainted_variables_map->contains($parent)) {
-
-			   $tainted_variables_map[$current_node]->addAll($tainted_variables_map[$parent]);
-			}
 	       }
 
 	       $changed = $initial_tainted_size != $tainted_variables_map[$current_node]->count();
