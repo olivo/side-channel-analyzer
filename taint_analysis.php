@@ -64,7 +64,8 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 
 	 // Map that contains the set of tainted variables 
 	 // per CFG node.
-	 $tainted_variables_map = new SplObjectStorage();
+	 $user_tainted_variables_map = new SplObjectStorage();
+	 $secret_tainted_variables_map = new SplObjectStorage();
 
 	 // Forward flow-sensitive taint-analysis.
 	 $entry_node = $main_cfg->entry;
@@ -75,22 +76,22 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 	       
 	       $current_node = $q->dequeue();
 
-	       if (!$tainted_variables_map->contains($current_node)) {
+	       if (!$user_tainted_variables_map->contains($current_node)) {
 
-	       	  $tainted_variables_map[$current_node] = new TaintedVariables();
+	       	  $user_tainted_variables_map[$current_node] = new TaintedVariables();
 	       }
 
 	       print "Started processing node: \n";
 	       $current_node->printCFGNode();
 
-	       $initial_tainted_size = $tainted_variables_map[$current_node]->count();
+	       $initial_user_tainted_size = $user_tainted_variables_map[$current_node]->count();
 
 	       // Add the taint sets of the parents.
 	       foreach($current_node->parents as $parent) {
 	       		
-			if ($tainted_variables_map->contains($parent)) {
+			if ($user_tainted_variables_map->contains($parent)) {
 
-			   $tainted_variables_map[$current_node]->addAll($tainted_variables_map[$parent]);
+			   $user_tainted_variables_map[$current_node]->addAll($user_tainted_variables_map[$parent]);
 			}
 	       }
 
@@ -102,27 +103,27 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 	       	  $stmt = $current_node->stmt;
 	       	  // Check to see if the statement is an assigment,
 		  // and the right hand side is tainted.
-		  if ((($stmt instanceof PhpParser\Node\Expr\Assign) || ($stmt instanceof PhpParser\Node\Expr\AssignOp)) && isTainted($stmt->expr, $tainted_variables_map[$current_node]) 
-		      && (!$tainted_variables_map[$current_node]->contains($stmt->var->name))) {
+		  if ((($stmt instanceof PhpParser\Node\Expr\Assign) || ($stmt instanceof PhpParser\Node\Expr\AssignOp)) && isTainted($stmt->expr, $user_tainted_variables_map[$current_node]) 
+		      && (!$user_tainted_variables_map[$current_node]->contains($stmt->var->name))) {
 
-		     $tainted_variables_map[$current_node]->attach($stmt->var->name);
+		     $user_tainted_variables_map[$current_node]->attach($stmt->var->name);
 		     print "The variable " . ($stmt->var->name) . " became tainted.\n";
 		  }
 	       }
 
-	       $changed = $initial_tainted_size != $tainted_variables_map[$current_node]->count();
+	       $changed = $initial_user_tainted_size != $user_tainted_variables_map[$current_node]->count();
 
 	       print "Finished processing node: \n";
 	       $current_node->printCFGNode();
 
-	       $tainted_variables_map[$current_node]->printTaintedVariables();
+	       $user_tainted_variables_map[$current_node]->printTaintedVariables();
 	       print "\n";
 
 	       // Add the successors of the current node to the queue, if the tainted set has changed or the successor hasn't been visited.
 
 	       foreach ($current_node->successors as $successor) {
 
-	       	       if ($changed || !$tainted_variables_map->contains($successor)) {
+	       	       if ($changed || !$user_tainted_variables_map->contains($successor)) {
 
 			      $q->enqueue($successor);
 		       }
@@ -130,8 +131,8 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 	}
 
 	print "==============================\n";
-	print "The tainted variables at the exit node are:\n";
-	$tainted_variables_map[$main_cfg->exit]->printTaintedVariables();
+	print "The user tainted variables at the exit node are:\n";
+	$user_tainted_variables_map[$main_cfg->exit]->printTaintedVariables();
 	print "\n";
 	print "==============================\n";
 
