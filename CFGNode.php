@@ -26,6 +26,11 @@ public function isCFGNodeCond($cfg_node) {
        return ($cfg_node instanceof CFGNodeCond);
 }
 
+public function isCFGNodeLoopHeader($cfg_node) {
+
+       return ($cfg_node instanceof CFGNodeLoopHeader);
+}
+
 // Printing function for the node.
 public function printCFGNode() {
 

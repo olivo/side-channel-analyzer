@@ -19,7 +19,7 @@ function isTainted($expr, $tainted_variables, $user_taint) {
 
        if ($expr instanceof PhpParser\Node\Expr\StaticCall || $expr instanceof PhpParser\Node\Expr\FuncCall || $expr instanceof PhpParser\Node\Expr\MethodCall) {
 
-       	  print "Analyzing static call or function call for taint\n";       	  
+       	  print "Analyzing static call, function call or method call for taint\n";       	  
 	  $function_name = $expr->name;
 
 	  // The expression is tainted if it invokes a basic user input extraction function.
@@ -29,16 +29,23 @@ function isTainted($expr, $tainted_variables, $user_taint) {
 	  }
 	  else if (!$user_taint && strcmp($function_name, 'search') == 0) {
 
+	     // The expression is tainted if it invokes the secret-tainting function in openclinic.
 	     return true;
 	  }
 
 	  // The expression is tainted if one of the arguments is tainted.
 	  foreach ($expr->args as $arg) {
 	  	  
-		  if(isTainted($arg->value, $tainted_variables, $user_taint)) {
+		  if (isTainted($arg->value, $tainted_variables, $user_taint)) {
 
 		  	return true;
 		  }
+	  }
+	  
+	  // The expression is tainted if it is a method call over a tainted expression.
+	  if ($expr instanceof PhpParser\Node\Expr\MethodCall && isTainted($expr->var, $tainted_variables, $user_taint)) {
+
+	     return true;
 	  }
        }
        else if ($expr instanceof PhpParser\Node\Expr\Variable) {
@@ -133,6 +140,21 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 		     $secret_tainted_variables_map[$current_node]->attach($stmt->var->name);
 		     print "The variable " . ($stmt->var->name) . " became secret tainted.\n";
 		  }
+		  // or an assignment with a secret-tainted RHS.
+		  else if ((($stmt instanceof PhpParser\Node\Expr\Assign) || ($stmt instanceof PhpParser\Node\Expr\AssignOp))
+		      && isTainted($stmt->expr, $secret_tainted_variables_map[$current_node], False) 
+		      && (!$secret_tainted_variables_map[$current_node]->contains($stmt->var->name))) {
+
+		     $secret_tainted_variables_map[$current_node]->attach($stmt->var->name);
+		     print "The variable " . ($stmt->var->name) . " became secret tainted.\n";
+		  }
+	       }
+	       // Check if a conditional node is secret-tainted, and issue a warning.
+	       else if (CFGNode::isCFGNodeCond($current_node) && $current_node->expr 
+	       	        && isTainted($current_node->expr, $secret_tainted_variables_map[$current_node], False) ) {
+
+	       	    print "Conditional node is secret-tainted:\n";
+		    $current_node->printCFGNode();
 	       }
 
 	       $changed = $initial_user_tainted_size != $user_tainted_variables_map[$current_node]->count() 
