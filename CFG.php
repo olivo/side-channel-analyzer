@@ -170,49 +170,28 @@ class CFG {
 			  $current_node = $static_call_node;
 			  print "Constructed static call node\n";		  
 
-		  // Foreach statement.
-		  } else if ($stmt instanceof PhpParser\Node\Stmt\Foreach_) {
+		  // Loops: Foreach, For or While statement.
+		  } else if ($stmt instanceof PhpParser\Node\Stmt\Foreach_ || $stmt instanceof PhpParser\Node\Stmt\For_ 
+		             || $stmt instanceof PhpParser\Node\Stmt\While_) {
 
-		 	  print "Found Foreach statement\n";
+		 	  print "Found " . gettype($stmt) . " statement\n";
 			  // Returns a pair with the loop header 
 			  // and a dummy exit node that follows the
 			  // loop.
-			  $foreach_nodes = CFG::processStmtForeach($stmt);
+			  $loop_nodes = CFG::processStmtLoop($stmt);
 
 			  // Connect the current node to the loop header.
-			  $current_node->successors[] = $foreach_nodes[0];
-			  $foreach_nodes[0]->parents[] = $current_node;
+			  $current_node->successors[] = $loop_nodes[0];
+			  $loop_nodes[0]->parents[] = $current_node;
 
 			  // Make the dummy exit node of the loop
 			  // the current node.
-			  $current_node = $foreach_nodes[1];
+			  $current_node = $loop_nodes[1];
 
-			  print "Constructed Foreach node\n";
-
-		  // For statement.
-		  } else if ($stmt instanceof PhpParser\Node\Stmt\For_) {
-
-		 	  print "Found For statement\n";
-			  // Returns a pair with the loop header 
-			  // and a dummy exit node that follows the
-			  // loop.
-			  $for_nodes = CFG::processStmtFor($stmt);
-
-			  // Connect the current node to the loop header.
-			  $current_node->successors[] = $for_nodes[0];
-			  $for_nodes[0]->parents[] = $current_node;
-
-			  // Make the dummy exit node of the loop
-			  // the current node.
-			  $current_node = $for_nodes[1];
-
-			  print "Constructed For node\n";
-
-   }	       		      
-
-		  else {	       		      
+			  print "Constructed " . gettype($stmt) . " node\n";
+		  } else {	       		      
 		       	  print "WARNING: Couldn't construct CFG node.\n";
-		  	  print "The statement has type ".($stmt->getType())."\n";
+		  	  print "The statement is of class ".(get_class($stmt))."\n";
 
 	          	  print "Has keys\n";
 
@@ -451,7 +430,7 @@ static function processExprInclude($exprInclude) {
 }
 
 
-// Constructs a node of a foreach loop.
+// Constructs a node of loop.
 // 1) Creates a CFG node for the loop condition that
 // acts as the loop header.
 // 2) Creates a CFG of the body of the loop.
@@ -459,79 +438,42 @@ static function processExprInclude($exprInclude) {
 // 4) Creates an exit dummy node.
 // 5) Links the condition node to the CFG of the body and the dummy
 // exit node.
-static function processStmtForeach($stmtForeach) {
-
-	// $stmtForeach has keys 'expr', 'valueVar' and 'stmts', 
-	// and optionally 'subNodes' which contains 'keyVar' and 'byRef'
+static function processStmtLoop($stmtLoop) {
 
 	// Create the CFG node for the loop header.
 	$header_node = new CFGNodeLoopHeader();
 
-	$header_node->expr = $stmtFor;
+	$header_node->expr = $stmtLoop;
 
-	$header_node->loop_type = CFGNodeLoopHeader::FOREACH_LOOP;
+	if ($stmtLoop instanceof PhpParser\Node\Stmt\Foreach_) {
+
+	   $header_node->loop_type = CFGNodeLoopHeader::FOREACH_LOOP;
+	}
+	else if ($stmtLoop instanceof PhpParser\Node\Stmt\For_) {
+
+	   $header_node->loop_type = CFGNodeLoopHeader::FOR_LOOP;
+	}
+	else if ($stmtLoop instanceof PhpParser\Node\Stmt\While_) {
+
+	   $header_node->loop_type = CFGNodeLoopHeader::WHILE_LOOP;
+	}
+	else {
+
+	   print "ERROR Unrecognized loop type while construction CFG node.\n";
+	}
 
 	// Create the dummy exit node.
 	$dummy_exit = new CFGNodeStmt();
 
 	// Create the CFG for the body of the loop.
-	$body_cfg = CFG::construct_cfg($stmtForeach->stmts);
-
-	// Link the exit of the body CFG to the loop header.
-	$body_cfg->exit->successors[] = $header_node;
-	$header_node->parents[] = $body_cfg_exit;
-
-	// Assert that the edge from the exit of the body CFG to 
-	// the loop header is a backedge
-	$body_cfg->exit->has_backedge = TRUE;
-	
-
-	// Link the header node to the entry of the body CFG.
-	$header_node->successors[] = $body_cfg->entry;
-	$body_cfg->entry->parents[] = $header_node;
-
-	// Link the header node to the dummy exit node.
-	$header_node->successors[] = $dummy_exit;
-	$dummy_exit->parents[] = $header_node;
-
-	return array($header_node,$dummy_exit);
-}
-
-// Constructs a node of a for loop.
-// 1) Creates a CFG node for the loop initialization, conditions 
-// and loop increments that
-// acts as the loop header.
-// 2) Creates a CFG of the body of the loop.
-// 3) Links the exit of the body CFG to the loop header CFG.
-// 4) Creates an exit dummy node.
-// 5) Links the condition node to the CFG of the body and the dummy
-// exit node.
-static function processStmtFor($stmtFor) {
-
-	// $stmtFor has keys 'init', 'cond', 'loop' and 'stmts'.
-
-	// Create the CFG node for the loop header.
-	$header_node = new CFGNodeLoopHeader();
- 
-	$header_node->expr = $stmtFor;
-
-	//print "The init value is :".printStmts($stmtFor->init)."\n";
-	//print "The cond value is :".printStmts($stmtFor->cond)."\n";
-	//print "The loop value is :".printStmts($stmtFor->loop)."\n";
-
-	$header_node->loop_type = CFGNodeLoopHeader::FOR_LOOP;
-
-	// Create the dummy exit node.
-	$dummy_exit = new CFGNode();
-
-	// Create the CFG for the body of the loop.
-	$body_cfg = CFG::construct_cfg($stmtFor->stmts);
+	$body_cfg = CFG::construct_cfg($stmtLoop->stmts);
 
 	// Link the exit of the body CFG to the loop header.
 	$body_cfg->exit->successors[] = $header_node;
 	$header_node->parents[] = $body_cfg->exit;
 
-	// Assert that exit of the body CFG has a back edge to the header.
+	// Assert that the edge from the exit of the body CFG to 
+	// the loop header is a backedge
 	$body_cfg->exit->has_backedge = TRUE;
 
 	// Link the header node to the entry of the body CFG.

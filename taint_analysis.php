@@ -15,6 +15,11 @@ function isTainted($expr, $tainted_variables, $user_taint) {
        print "Analyzing expression for taint.\n";
        print "The class is " . get_class($expr) . "\n";
 
+       if ($expr == null) {
+       
+	return false;
+       }
+
        // For now, checking that the expression is either a function call of 'postGetSession' or a variable already in the tainted set.
 
        if ($expr instanceof PhpParser\Node\Expr\StaticCall || $expr instanceof PhpParser\Node\Expr\FuncCall || $expr instanceof PhpParser\Node\Expr\MethodCall) {
@@ -142,11 +147,24 @@ function taint_analysis($main_cfg, $function_cfgs, $function_signatures) {
 		  }
 		  // or an assignment with a secret-tainted RHS.
 		  else if ((($stmt instanceof PhpParser\Node\Expr\Assign) || ($stmt instanceof PhpParser\Node\Expr\AssignOp))
-		      && isTainted($stmt->expr, $secret_tainted_variables_map[$current_node], False) 
-		      && (!$secret_tainted_variables_map[$current_node]->contains($stmt->var->name))) {
+		      && isTainted($stmt->expr, $secret_tainted_variables_map[$current_node], False)) {
 
-		     $secret_tainted_variables_map[$current_node]->attach($stmt->var->name);
-		     print "The variable " . ($stmt->var->name) . " became secret tainted.\n";
+		     $lhs = $stmt->var;
+		     if ($lhs instanceof PhpParser\Node\Expr\Variable) {
+
+		     	$lhs_var_name = $lhs->name;
+		     }
+		     else if ($lhs instanceof PhpParser\Node\Expr\ArrayDimFetch) {
+
+		     	$lhs_var_name = $lhs->var->name;
+		     }
+
+		     print "The LHS has class : " . get_class($lhs) . "\n";
+		     if (!$secret_tainted_variables_map[$current_node]->contains($lhs_var_name)) {
+		     
+			$secret_tainted_variables_map[$current_node]->attach($lhs_var_name);
+		     	print "The variable " . ($lhs_var_name) . " became secret tainted.\n";
+	             }
 		  }
 	       }
 	       // Check if a conditional node is secret-tainted, and issue a warning.

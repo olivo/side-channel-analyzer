@@ -85,6 +85,12 @@ public function printCFGNode() {
 	 print ($prettyPrinter->prettyPrintExpr($this->expr->keyVar)) . " ;\n";	 
 	 print ($prettyPrinter->prettyPrintExpr($this->expr->valueVar)) . " ;\n";
       }
+      else if ($this->loop_type == CFGNodeLoopHeader::WHILE_LOOP) {
+
+      	 print "[While Loop] : \n";
+
+	 print ($prettyPrinter->prettyPrintExpr($this->expr->cond)) . " ;\n";	 
+      }
       else {
 
       	 print "Unrecognized Loop.\n";
