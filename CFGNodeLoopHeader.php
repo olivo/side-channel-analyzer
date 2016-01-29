@@ -36,7 +36,20 @@ public function getLoopExit() {
        return $this->successors[1];
 }
 
+public function isForLoop() {
 
+       return $this->loop_type == CFGNodeLoopHeader::FOR_LOOP;
+}
+
+public function isWhileLoop() {
+
+       return $this->loop_type == CFGNodeLoopHeader::WHILE_LOOP;
+}
+
+public function isForeachLoop() {
+
+       return $this->loop_type == CFGNodeLoopHeader::FOREACH_LOOP;
+}
 
 // Printout function.
 public function printCFGNode() {
