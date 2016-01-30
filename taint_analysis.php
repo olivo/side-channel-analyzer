@@ -121,12 +121,40 @@ function processTaint($current_node, $user_tainted_variables_map, $secret_tainte
 	             }
 		  }
 	       }
-	       // Check if a conditional node is secret-tainted, and issue a warning.
-	       else if (CFGNode::isCFGNodeCond($current_node) && $current_node->expr 
-	       	        && isTainted($current_node->expr, $secret_tainted_variables_map[$current_node], False)) {
+	       // Check if a conditional node is tainted, and issue a warning.
+	       else if (CFGNode::isCFGNodeCond($current_node) && $current_node->expr) {
 
-	       	    print "Conditional node is secret-tainted:\n";
-		    $current_node->printCFGNode();
+
+	       	    // If the conditional contains an assignment, propagate its taint
+		    // besides checking for taint in the conditional.
+		    if ($current_node->expr instanceof PhpParser\Node\Expr\Assign) {
+
+		       if (isTainted($current_node->expr->expr, $secret_tainted_variables_map[$current_node], False)) {
+		       	  
+			  print "The variable " . ($current_node->expr->var->name) . "became secret tainted.\n";
+			  $secret_tainted_variables_map[$current_node]->attach($current_node->expr->var->name);
+	       	    	  print "WARNING: Conditional node is secret-tainted:\n";
+		       }
+
+		       if (isTainted($current_node->expr->expr, $user_tainted_variables_map[$current_node], True)) {
+		       	  
+			  print "The variable " . ($current_node->expr->var->name) . "became user tainted.\n";
+			  $user_tainted_variables_map[$current_node]->attach($current_node->expr->var->name);
+	       	    	  print "WARNING: Conditional node is user-tainted:\n";
+		       }
+		    }
+		    else {
+	       	        
+			if (isTainted($current_node->expr, $secret_tainted_variables_map[$current_node], False)) {
+
+	       	    	   print "WARNING: Conditional node is secret-tainted:\n";
+			}
+
+			if (isTainted($current_node->expr, $user_tainted_variables_map[$current_node], True)) {
+
+	       	    	   print "WARNING: Conditional node is user-tainted:\n";
+			}
+		    }
 	       }
 	       // Check if a loop header is secret-tainted, and issue a warning.
 	       else if (CFGNode::isCFGNodeLoopHeader($current_node) && $current_node->expr) {
