@@ -84,63 +84,76 @@ function processTaint($current_node, $user_tainted_variables_map, $secret_tainte
 	       	  $stmt = $current_node->stmt;
 	       	  // Check to see if the statement is an assigment,
 		  // and the right hand side is tainted.
-		  if ((($stmt instanceof PhpParser\Node\Expr\Assign) || ($stmt instanceof PhpParser\Node\Expr\AssignOp)) 
-		      && isTainted($stmt->expr, $user_tainted_variables_map[$current_node], True) 
-		      && (!$user_tainted_variables_map[$current_node]->contains($stmt->var->name))) {
+		  if (($stmt instanceof PhpParser\Node\Expr\Assign) || ($stmt instanceof PhpParser\Node\Expr\AssignOp)) {
 
-		     $user_tainted_variables_map[$current_node]->attach($stmt->var->name);
-		     print "The variable " . ($stmt->var->name) . " became user tainted.\n";
-		  }
-		  // or a method call with a secret-tainting method.
-		  else if (($stmt instanceof PhpParser\Node\Expr\MethodCall)
-		      && isTainted($stmt, $secret_tainted_variables_map[$current_node], False) 
-		      && (!$secret_tainted_variables_map[$current_node]->contains($stmt->var->name))) {
+		      // Accounting for simple LHS variables and array indexing.
+		      $lhs = $stmt->var;
+		      
+		      if ($lhs instanceof PhpParser\Node\Expr\Variable) {
+		      	 
+			 $lhs_var = $lhs->name;
+		      } 
+		      else if ($lhs instanceof PhpParser\Node\Expr\ArrayDimFetch) {
 
-		     $secret_tainted_variables_map[$current_node]->attach($stmt->var->name);
-		     print "The variable " . ($stmt->var->name) . " became secret tainted.\n";
-		  }
-		  // or an assignment with a secret-tainted RHS.
-		  else if ((($stmt instanceof PhpParser\Node\Expr\Assign) || ($stmt instanceof PhpParser\Node\Expr\AssignOp))
-		      && isTainted($stmt->expr, $secret_tainted_variables_map[$current_node], False)) {
+		      	 $lhs_var = $lhs->var->name;
+		      } else {
 
-		     $lhs = $stmt->var;
-		     if ($lhs instanceof PhpParser\Node\Expr\Variable) {
-
-		     	$lhs_var_name = $lhs->name;
-		     }
-		     else if ($lhs instanceof PhpParser\Node\Expr\ArrayDimFetch) {
-
-		     	$lhs_var_name = $lhs->var->name;
-		     }
-
-		     print "The LHS has class : " . get_class($lhs) . "\n";
-		     if (!$secret_tainted_variables_map[$current_node]->contains($lhs_var_name)) {
+		      	 print "ERROR: Unrecognized LHS type of an assignment while performing taint analysis.\n";
+		      } 
 		     
-			$secret_tainted_variables_map[$current_node]->attach($lhs_var_name);
-		     	print "The variable " . ($lhs_var_name) . " became secret tainted.\n";
-	             }
+		      if (!$user_tainted_variables_map[$current_node]->contains($lhs_var)
+		          && isTainted($stmt->expr, $user_tainted_variables_map[$current_node], True)) {
+
+		      	 $user_tainted_variables_map[$current_node]->attach($lhs_var);
+		     	 print "The variable " . ($lhs_var) . " became user-tainted.\n";
+		      }
+
+		      if (!$secret_tainted_variables_map[$current_node]->contains($lhs_var)
+		          && isTainted($stmt->expr, $secret_tainted_variables_map[$current_node], False)) {
+
+		      	 $secret_tainted_variables_map[$current_node]->attach($lhs_var);
+		     	 print "The variable " . ($lhs_var) . " became secret-tainted.\n";
+		      }
+		  }
+		  // or a method call with a tainting method.
+		  else if ($stmt instanceof PhpParser\Node\Expr\MethodCall) {
+
+		      if (!$user_tainted_variables_map[$current_node]->contains($stmt->var->name)
+		          && isTainted($stmt, $user_tainted_variables_map[$current_node], True)) {
+
+		     	  $user_tainted_variables_map[$current_node]->attach($stmt->var->name);
+		     	  print "The variable " . ($stmt->var->name) . " became user-tainted.\n";
+		      }
+
+		      if (!$secret_tainted_variables_map[$current_node]->contains($stmt->var->name)
+		          && isTainted($stmt, $secret_tainted_variables_map[$current_node], False)) {
+
+		     	  $secret_tainted_variables_map[$current_node]->attach($stmt->var->name);
+		     	  print "The variable " . ($stmt->var->name) . " became secret-tainted.\n";
+		      }
 		  }
 	       }
 	       // Check if a conditional node is tainted, and issue a warning.
 	       else if (CFGNode::isCFGNodeCond($current_node) && $current_node->expr) {
 
-
 	       	    // If the conditional contains an assignment, propagate its taint
 		    // besides checking for taint in the conditional.
 		    if ($current_node->expr instanceof PhpParser\Node\Expr\Assign) {
 
-		       if (isTainted($current_node->expr->expr, $secret_tainted_variables_map[$current_node], False)) {
-		       	  
-			  print "The variable " . ($current_node->expr->var->name) . "became secret tainted.\n";
-			  $secret_tainted_variables_map[$current_node]->attach($current_node->expr->var->name);
-	       	    	  print "WARNING: Conditional node is secret-tainted:\n";
-		       }
-
-		       if (isTainted($current_node->expr->expr, $user_tainted_variables_map[$current_node], True)) {
+		       if (!$user_tainted_variables_map[$current_node]->contains($current_node->expr->var->name)
+		           && isTainted($current_node->expr->expr, $user_tainted_variables_map[$current_node], True)) {
 		       	  
 			  print "The variable " . ($current_node->expr->var->name) . "became user tainted.\n";
 			  $user_tainted_variables_map[$current_node]->attach($current_node->expr->var->name);
 	       	    	  print "WARNING: Conditional node is user-tainted:\n";
+		       }
+
+		       if (!$secret_tainted_variables_map[$current_node]->contains($current_node->expr->var->name)
+		           && isTainted($current_node->expr->expr, $secret_tainted_variables_map[$current_node], False)) {
+		       	  
+			  print "The variable " . ($current_node->expr->var->name) . "became secret tainted.\n";
+			  $secret_tainted_variables_map[$current_node]->attach($current_node->expr->var->name);
+	       	    	  print "WARNING: Conditional node is secret-tainted:\n";
 		       }
 		    }
 		    else {
