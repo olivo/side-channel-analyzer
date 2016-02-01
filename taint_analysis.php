@@ -175,13 +175,14 @@ function processTaint($current_node, $user_tainted_variables_map, $secret_tainte
 	            print "Analyzing loop header.\n";
 	            // The conditional covers the case when the condition is a boolean expression or an 
 		    // assignment that propagates taint.
-	       	    if ($current_node->isWhileLoop() 
-		        && (isTainted($current_node->expr->cond, $secret_tainted_variables_map[$current_node], True)
+	       	    if ($current_node->isWhileLoop()) {
+
+		       if (isTainted($current_node->expr->cond, $user_tainted_variables_map[$current_node], True)
 			    || ($current_node->expr->cond instanceof PhpParser\Node\Expr\Assign 
-			        && isTainted($current_node->expr->cond->expr, $secret_tainted_variables_map[$current_node], False)))) {
+			        && isTainted($current_node->expr->cond->expr, $user_tainted_variables_map[$current_node], True))) {
 		       
-		       print "While Loop is secret-tainted.\n";
-		    }
+				print "While Loop is secret-tainted.\n";
+			}
 	       }
 }
 
