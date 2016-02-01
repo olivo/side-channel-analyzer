@@ -181,8 +181,16 @@ function processTaint($current_node, $user_tainted_variables_map, $secret_tainte
 			    || ($current_node->expr->cond instanceof PhpParser\Node\Expr\Assign 
 			        && isTainted($current_node->expr->cond->expr, $user_tainted_variables_map[$current_node], True))) {
 		       
+				print "While Loop is user-tainted.\n";
+		       }
+
+		       if (isTainted($current_node->expr->cond, $secret_tainted_variables_map[$current_node], False)
+			    || ($current_node->expr->cond instanceof PhpParser\Node\Expr\Assign 
+			        && isTainted($current_node->expr->cond->expr, $secret_tainted_variables_map[$current_node], False))) {
+		       
 				print "While Loop is secret-tainted.\n";
-			}
+		       }
+	       	    }
 	       }
 }
 
