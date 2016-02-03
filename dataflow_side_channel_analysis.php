@@ -1,10 +1,10 @@
 <?php
 
-include_once "CFGNode.php";
-include_once "CFGNodeCond.php";
-include_once "CFGNodeStmt.php";
-include_once "PHP-Parser-master/lib/bootstrap.php";
-include_once "StmtProcessing.php";
+include_once(dirname(__FILE__) . '/TaintPHP/CFG/CFGNode.php');
+include_once(dirname(__FILE__) . '/TaintPHP/CFG/CFGNodeCond.php');
+include_once(dirname(__FILE__) . '/TaintPHP/CFG/CFGNodeStmt.php');
+include_once(dirname(__FILE__) . '/TaintPHP/PHP-Parser-master/lib/bootstrap.php');
+include_once(dirname(__FILE__) . '/TaintPHP/CFG/StmtProcessing.php');
 
 
 // Performs a side-channel detection based on a dataflow analysis.

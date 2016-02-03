@@ -1,10 +1,9 @@
 <?php
 
-include_once "PHP-Parser-master/lib/bootstrap.php";
 
-include_once "taint_analysis.php";
-
-include_once "CFG.php";
+include_once(dirname(__FILE__) . '/TaintPHP/PHP-Parser-master/lib/bootstrap.php');
+include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/taint_analysis.php');
+include_once(dirname(__FILE__) . '/TaintPHP/CFG/CFG.php');
 
 $filename = $argv[1];
 	
