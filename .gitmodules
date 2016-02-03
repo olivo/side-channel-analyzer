@@ -1,0 +1,3 @@
+[submodule "TaintPHP"]
+	path = TaintPHP
+	url = https://github.com/olivo/TaintPHP
