@@ -25,6 +25,9 @@ function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_si
 	 while (count($q)) {
 	       
 	       $current_node = $q->dequeue();
+
+	       print "Current Node:\n";
+	       $current_node->printCFGNode();
 	       
 	       // Obtain the counts for all the successors.
 	       $successor_array = array();
@@ -53,10 +56,18 @@ function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_si
 		  print "The successors counters are:\n";
 		  $successor_keys = array_keys($successor_array);
 		  foreach ($successor_keys as $counter) {
+		  
 		  	  print $counter . "\n";
 		  }
 
-		  $new_counter_value = current($successor_array);
+		  // TODO: Currently setting the counter of a vulnerable
+		  // node to the maximum.
+		  // We should find a better way to propagate an error.
+		  $new_counter_value = max($successor_array);
+
+		  // TODO: Find something better than returning after the first error.
+		  return;
+
 		}
 		else {
 
@@ -66,7 +77,7 @@ function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_si
 
 		  $current_increment = 0;
 		  // TODO: Only counting loop headers. Need to fix this to count database operations.
-		  if (CFGNode::isCFGNodeCond($current_node) && $current_node->is_loop_header) {
+		  if (CFGNode::isCFGNodeLoopHeader($current_node)) {
 		     
 		     $current_increment = 1;
 		  }
@@ -92,6 +103,9 @@ function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_si
 		// Update the counter for the current node.
 		// If the value has changed, add the parents of the current node to the queue.
 		if (!$num_operations_map->contains($current_node) || $num_operations_map[$current_node] != $new_counter_value) {
+
+		   print "Updated value for node:\n";
+		   $current_node->printCFGNode();
 
 		   $num_operations_map[$current_node] = $new_counter_value;
 		   // Add the parents of the current node to the queue.
