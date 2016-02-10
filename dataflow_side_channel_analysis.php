@@ -14,7 +14,7 @@ include_once(dirname(__FILE__) . '/TaintPHP/CFG/StmtProcessing.php');
 function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_signatures, $user_taint_map, $secret_tainted_map) {
 
 	 print "Starting Dataflow Side Channel Detection.\n";
-	 // Map that contains the number of database and loop operations from each node in the CFG.
+	 // Map that contains the number of loop operations from each node in the CFG.
 	 $num_operations_map = new SplObjectStorage();
 	 
 	 // Backwards dataflow analysis for counting imbalance of operations at conditional nodes.
@@ -42,17 +42,17 @@ function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_si
 
 	       // If there are multiple count values for the successors
 	       // of the current node, report side-channel vulnerability.
-	       // Arbitrarilly, keep the first of these values for the current node.
+	       // Arbitrarilly, propagate the maximum resource usage for the node.
 
 	       // TODO: Keep the set of seen values, rather than the first successor value,
 	       // for soundness purposes.
 	       
 	       $new_counter_value = 0;
-	       if (count($successor_array) > 1) {
+	       if (CFGNode::isCFGNodeCond($current_node) && count($successor_array) > 1) {
 
-	          // TODO: Figure out how to print conditional nodes properly.					   
-		  print "ERROR: Side-channel vulnerability found at node: \n"; 
-		  //printStmts(array($current_node->stmt));
+	          print "ERROR: Side-channel vulnerability found at node: \n"; 
+		  $current_node->printCFGNode();
+
 		  print "The successors counters are:\n";
 		  $successor_keys = array_keys($successor_array);
 		  foreach ($successor_keys as $counter) {
@@ -72,11 +72,11 @@ function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_si
 		else {
 
 		  // Increment one to the successor counter only if current node
-		  // is a database operation or a loop header, and put the current value
+		  // is a loop header, and put the current value
 		  // in the map.
 
 		  $current_increment = 0;
-		  // TODO: Only counting loop headers. Need to fix this to count database operations.
+
 		  if (CFGNode::isCFGNodeLoopHeader($current_node)) {
 		     
 		     $current_increment = 1;
@@ -87,18 +87,7 @@ function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_si
 		}
 
 		print "Finished processing node: ";
-		if (CFGNode::isCFGNodeStmt($current_node)) { 
-		   
-		   if ($current_node->stmt) {
-		     printStmts(array($current_node->stmt));
-		   }
-		   else {
-		     print "Dummy node.\n";
-		   }
-		}
-		else {
-		   print "Cond Node.\n";
-		}
+		$current_node->printCFGNode();
 
 		// Update the counter for the current node.
 		// If the value has changed, add the parents of the current node to the queue.
@@ -116,6 +105,4 @@ function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_si
 		}
 	 }
  }
-
-
 ?>
