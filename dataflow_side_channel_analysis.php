@@ -3,8 +3,9 @@
 include_once(dirname(__FILE__) . '/TaintPHP/CFG/CFGNode.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CFG/CFGNodeCond.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CFG/CFGNodeStmt.php');
-include_once(dirname(__FILE__) . '/TaintPHP/PHP-Parser-master/lib/bootstrap.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CFG/StmtProcessing.php');
+include_once(dirname(__FILE__) . '/TaintPHP/PHP-Parser-master/lib/bootstrap.php');
+include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/taint_analysis.php');
 
 
 // Performs a side-channel detection based on a dataflow analysis.
@@ -50,24 +51,26 @@ function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_si
 	       $new_counter_value = 0;
 	       if (CFGNode::isCFGNodeCond($current_node) && count($successor_array) > 1) {
 
-	          print "ERROR: Side-channel vulnerability found at node: \n"; 
-		  $current_node->printCFGNode();
+	          if (isSecretTaintedCFGNodeCond($current_node, $secret_tainted_map[$current_node])) {
+	             
+		     print "ERROR: Side-channel vulnerability found at node: \n"; 
+		     $current_node->printCFGNode();
 
-		  print "The successors counters are:\n";
-		  $successor_keys = array_keys($successor_array);
-		  foreach ($successor_keys as $counter) {
+		     print "The successors counters are:\n";
+		     $successor_keys = array_keys($successor_array);
+		     foreach ($successor_keys as $counter) {
 		  
 		  	  print $counter . "\n";
+		     }
+
+		     // TODO: Currently setting the counter of a vulnerable
+		     // node to the maximum.
+		     // We should find a better way to propagate an error.
+		     $new_counter_value = max($successor_array);
+
+		     // TODO: Find something better than returning after the first error.
+		     return;
 		  }
-
-		  // TODO: Currently setting the counter of a vulnerable
-		  // node to the maximum.
-		  // We should find a better way to propagate an error.
-		  $new_counter_value = max($successor_array);
-
-		  // TODO: Find something better than returning after the first error.
-		  return;
-
 		}
 		else {
 
