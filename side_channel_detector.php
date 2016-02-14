@@ -15,6 +15,6 @@ $tainted_maps = taint_analysis($file_cfgs[0], $file_cfgs[1], $file_cfgs[2]);
 
 print "==== STARTING SIDE-CHANNEL DETECTION ====\n";
 
-dataflow_side_channel_detection($file_cfgs[0], $file_cfgs[1], $file_cfgs[2], $tainted_maps[0], $tainted_maps[1]);
+dataflow_side_channel_detection($file_cfgs[0], $file_cfgs[1], $file_cfgs[2], $tainted_maps);
 
 ?>

@@ -12,7 +12,11 @@ include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/taint_analysis.php');
 // The algorithm looks for imbalances in the number of database and loop 
 // operations between two branches that depend on a secret.
 
-function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_signatures, $user_taint_map, $secret_tainted_map) {
+function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_signatures, $taint_maps) {
+
+	 // TODO: Perform dataflow analysis over internal functions (not only the main).
+	 $user_tainted_map = $taint_maps[0][0];
+	 $secret_tainted_map = $taint_maps[0][1];
 
 	 print "Starting Dataflow Side Channel Detection.\n";
 	 // Map that contains the number of loop operations from each node in the CFG.
