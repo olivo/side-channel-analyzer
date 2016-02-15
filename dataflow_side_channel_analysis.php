@@ -5,6 +5,7 @@ include_once(dirname(__FILE__) . '/TaintPHP/CFG/CFGNodeCond.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CFG/CFGNodeStmt.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CFG/StmtProcessing.php');
 include_once(dirname(__FILE__) . '/TaintPHP/PHP-Parser-master/lib/bootstrap.php');
+include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/CFGTaintMap.php');
 include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/taint_analysis.php');
 
 
@@ -15,8 +16,8 @@ include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/taint_analysis.php');
 function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_signatures, $taint_maps) {
 
 	 // TODO: Perform dataflow analysis over internal functions (not only the main).
-	 $user_tainted_map = $taint_maps[0][0];
-	 $secret_tainted_map = $taint_maps[0][1];
+	 $user_tainted_map = $taint_maps[0]->getUserTaintMap();
+	 $secret_tainted_map = $taint_maps[0]->getSecretTaintMap();
 
 	 print "Starting Dataflow Side Channel Detection.\n";
 	 // Map that contains the number of loop operations from each node in the CFG.
