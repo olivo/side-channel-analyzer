@@ -9,28 +9,47 @@ include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/CFGTaintMap.php');
 include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/taint_analysis.php');
 
 
+// TODO: Hangs on openlinic/layout/admin.php
+
+// Perform side-channel detection on the main and function CFGs.
+function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_signatures, $taint_maps) {
+
+	 cfg_dataflow_side_channel_detection($main_cfg, $taint_maps[0]);
+
+	 foreach ($taint_maps[1] as $func_name => $func_taint_map) {
+
+	     cfg_dataflow_side_channel_detection($function_cfgs[$func_name], $func_taint_map);
+	 }
+}	 	 
+
 // Performs a side-channel detection based on a dataflow analysis.
 // The algorithm looks for imbalances in the number of database and loop 
 // operations between two branches that depend on a secret.
 
-function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_signatures, $taint_maps) {
+function cfg_dataflow_side_channel_detection($cfg, $taint_maps) {	 	 
 
-	 // TODO: Perform dataflow analysis over internal functions (not only the main).
-	 $user_tainted_map = $taint_maps[0]->getUserTaintMap();
-	 $secret_tainted_map = $taint_maps[0]->getSecretTaintMap();
+	 // WARNING: Imposing a bound to avoid infinite loop bugs.
+	 // Use only for testing.
+	 $bound = 1000;
+	 $steps = 0;
+
+	 $user_tainted_map = $taint_maps->getUserTaintMap();
+	 $secret_tainted_map = $taint_maps->getSecretTaintMap();
 
 	 print "Starting Dataflow Side Channel Detection.\n";
 	 // Map that contains the number of loop operations from each node in the CFG.
 	 $num_operations_map = new SplObjectStorage();
 	 
 	 // Backwards dataflow analysis for counting imbalance of operations at conditional nodes.
-	 $exit_node = $main_cfg->exit;
+	 $exit_node = $cfg->exit;
 	 $q = new SplQueue();
 	 $q->enqueue($exit_node);
 
-	 while (count($q)) {
-	       
+	 while (count($q) && $steps < $bound) {
+
 	       $current_node = $q->dequeue();
+
+	       $steps++;
 
 	       print "Current Node:\n";
 	       $current_node->printCFGNode();
