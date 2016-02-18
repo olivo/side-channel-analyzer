@@ -30,7 +30,7 @@ function cfg_dataflow_side_channel_detection($cfg, $taint_maps) {
 
 	 // WARNING: Imposing a bound to avoid infinite loop bugs.
 	 // Use only for testing.
-	 $bound = 1000;
+	 $bound = 10000;
 	 $steps = 0;
 
 	 $user_tainted_map = $taint_maps->getUserTaintMap();

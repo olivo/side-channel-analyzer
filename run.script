@@ -13,8 +13,6 @@ APPLICATION_DIR="/var/www/html/oscommerce-2.3.4"
 
 time find $APPLICATION_DIR -type f -name '*.php' -exec php side_channel_detector.php {} \;
 
-
-
 APPLICATION_DIR="/var/www/html/opencart-2.1.0.2"
 
 time find $APPLICATION_DIR -type f -name '*.php' -exec php side_channel_detector.php {} \;
