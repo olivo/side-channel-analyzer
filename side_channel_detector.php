@@ -13,10 +13,10 @@ print "==== STARTING ANALYSIS ON FILE: " . $filename . "\n";
 $file_cfgs = CFG::construct_file_cfgs($filename);
 
 print "==== STARTING TAINT ANALYSIS ====\n";
-$tainted_maps = taint_analysis($file_cfgs[0], $file_cfgs[1], $file_cfgs[2]);
+$file_tainted_maps = taint_analysis($file_cfgs[0], $file_cfgs[1], $file_cfgs[2]);
 
 print "==== STARTING SIDE-CHANNEL DETECTION ====\n";
 
-dataflow_side_channel_detection($file_cfgs[0], $file_cfgs[1], $file_cfgs[2], $tainted_maps);
+dataflow_side_channel_detection($file_cfgs[0], $file_cfgs[1], $file_cfgs[2], $file_tainted_maps);
 
 ?>

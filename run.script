@@ -1,23 +1,25 @@
 
-APPLICATION_DIR="/var/www/html/openclinic"
+php side_channel_detector.php /var/www/html/openclinic/medical/patient_search.php
 
-time find $APPLICATION_DIR -type f -name '*.php' -exec php side_channel_detector.php {} \;
+#APPLICATION_DIR="/var/www/html/openclinic"
 
-
-APPLICATION_DIR="/var/www/html/WeBid"
-
-time find $APPLICATION_DIR -type f -name '*.php' -exec php side_channel_detector.php {} \;
+#time find $APPLICATION_DIR -type f -name '*.php' -exec php side_channel_detector.php {} \;
 
 
-APPLICATION_DIR="/var/www/html/oscommerce-2.3.4"
+#APPLICATION_DIR="/var/www/html/WeBid"
 
-time find $APPLICATION_DIR -type f -name '*.php' -exec php side_channel_detector.php {} \;
+#time find $APPLICATION_DIR -type f -name '*.php' -exec php side_channel_detector.php {} \;
 
-APPLICATION_DIR="/var/www/html/opencart-2.1.0.2"
 
-time find $APPLICATION_DIR -type f -name '*.php' -exec php side_channel_detector.php {} \;
+#APPLICATION_DIR="/var/www/html/oscommerce-2.3.4"
 
-APPLICATION_DIR="/var/www/html/zeuscart"
+#time find $APPLICATION_DIR -type f -name '*.php' -exec php side_channel_detector.php {} \;
 
-time find $APPLICATION_DIR -type f -name '*.php' -exec php side_channel_detector.php {} \;
+#APPLICATION_DIR="/var/www/html/opencart-2.1.0.2"
+
+#time find $APPLICATION_DIR -type f -name '*.php' -exec php side_channel_detector.php {} \;
+
+#APPLICATION_DIR="/var/www/html/zeuscart"
+
+#time find $APPLICATION_DIR -type f -name '*.php' -exec php side_channel_detector.php {} \;
 
