@@ -13,20 +13,24 @@ $Iterator = new RecursiveIteratorIterator($Directory);
 $Regex = new RegexIterator($Iterator, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
 $Regex->rewind();
 
+// Map from filenames to CFG information.
+$cfgInfoMap = array();
+
 while($Regex->valid()) {
         // Regex iterator contains an array of a single element for each file.
         $fileName = $Regex->current()[0];
 	print "==== STARTING ANALYSIS ON FILE: " . $fileName . "\n";
 	
 	// Obtain the CFGs of the main function, auxiliary functions and function signatures.
-	$file_cfgs = CFG::construct_file_cfgs($fileName);
+	$fileCFGInfo = CFG::construct_file_cfgs($fileName);
+	$cfgInfoMap[$fileName] = $fileCFGInfo;
 
 	//print "==== STARTING TAINT ANALYSIS ====\n";
-	//$file_tainted_maps = taint_analysis($file_cfgs[0], $file_cfgs[1], $file_cfgs[2]);
+	//$file_tainted_maps = taint_analysis($fileCFGInfo);
 
 	//print "==== STARTING SIDE-CHANNEL DETECTION ====\n";
 
-	//dataflow_side_channel_detection($file_cfgs[0], $file_cfgs[1], $file_cfgs[2], $file_tainted_maps);
+	//dataflow_side_channel_detection($fileCFGInfo, $file_tainted_maps);
 	$Regex->next();
 }
 

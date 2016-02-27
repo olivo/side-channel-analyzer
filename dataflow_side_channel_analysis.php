@@ -12,13 +12,16 @@ include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/taint_analysis.php');
 // TODO: Hangs on openlinic/layout/admin.php
 
 // Perform side-channel detection on the main and function CFGs.
-function dataflow_side_channel_detection($main_cfg, $function_cfgs, $function_signatures, $file_taint_maps) {
+function dataflow_side_channel_detection($fileCFGInfo, $fileTaintMaps) {
 
-	 cfg_dataflow_side_channel_detection($main_cfg, $file_taint_maps->getMainTaintMap());
+	 $mainCFG = $fileCFGInfo->getMainCFG();
+	 $functionCFGs = $fileCFGInfo->getFunctionCFGs();
 
-	 foreach ($file_taint_maps->getFunctionTaintMaps() as $func_name => $func_taint_map) {
+	 cfg_dataflow_side_channel_detection($mainCFG, $fileTaintMaps->getMainTaintMap());
 
-	     cfg_dataflow_side_channel_detection($function_cfgs[$func_name], $func_taint_map);
+	 foreach ($fileTaintMaps->getFunctionTaintMaps() as $funcName => $funcTaintMap) {
+
+	     cfg_dataflow_side_channel_detection($functionCFGs[$funcName], $funcTaintMap);
 	 }
 }	 	 
 
