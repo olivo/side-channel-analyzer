@@ -1,5 +1,6 @@
 
-php side_channel_detector.php /var/www/html/openclinic/medical/patient_search.php
+#php side_channel_detector.php /var/www/html/openclinic/medical/patient_search.php
+php side_channel_detector.php /var/www/html/openclinic/medical
 
 #APPLICATION_DIR="/var/www/html/openclinic"
 
