@@ -49,13 +49,17 @@ foreach($functionSignatures as $name => $signatures) {
 }
 
 
+// Add nodes of the call graphs from the global set of function signatures defined in the program.
+// Analyze the entire program again to add edges and the nodes for non-user function calls.
 $callGraph = new CallGraph();
+
+$callGraph->addAllNodesFromFunctionSignatures($functionSignatures);
 
 while($Regex->valid()) {
 
         $fileName = $Regex->current()[0];
         print "==== STARTING CALL GRAPH CONSTRUCTION: " . $fileName . " ====\n";
-	$callGraph->addFileCallGraphInfo($cfgInfoMap[$fileName]);
+	$callGraph->addFileCallGraphInfo($cfgInfoMap[$fileName], $functionSignatures);
 
 	print "Call Graph:\n";
 	$callGraph->printCallGraph();
