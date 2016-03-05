@@ -73,6 +73,10 @@ while($Regex->valid()) {
 	$Regex->next();
 }
 
+$callGraph->computeRootNodes();
+
+$callGraph->printCallGraphRoots();
+
 // Function that adds the function signatures to the global map of function signatures.
 function addFunctionSignatures($functionSignatureMap, $functionSignatures) {
        
