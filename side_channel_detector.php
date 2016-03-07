@@ -2,7 +2,7 @@
 
 include_once(dirname(__FILE__) . '/dataflow_side_channel_analysis.php');
 include_once(dirname(__FILE__) . '/TaintPHP/PHP-Parser-master/lib/bootstrap.php');
-include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/taint_analysis.php');
+include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/TaintAnalysis.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CallGraph/CallGraph.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CFG/CFG.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CFG/FunctionSignature.php');
@@ -65,11 +65,11 @@ while($Regex->valid()) {
 	$callGraph->printCallGraph();
 
 	//print "==== STARTING TAINT ANALYSIS ====\n";
-	//$file_tainted_maps = taint_analysis($fileCFGInfo);
+	//$fileTaintedMaps = fileTaintAnalysis($fileCFGInfo);
 
 	//print "==== STARTING SIDE-CHANNEL DETECTION ====\n";
 
-	//dataflow_side_channel_detection($fileCFGInfo, $file_tainted_maps);
+	//dataflow_side_channel_detection($fileCFGInfo, $fileTaintedMaps);
 	$Regex->next();
 }
 
