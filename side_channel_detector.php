@@ -77,6 +77,10 @@ $callGraph->computeRootNodes();
 
 $callGraph->printCallGraphRoots();
 
+// Perform taint analysis over the entire application.
+print "==== STARTING TAINT ANALYSIS ====\n";
+taintAnalysis($callGraph, $cfgInfoMap, $functionSignatures);
+
 // Function that adds the function signatures to the global map of function signatures.
 function addFunctionSignatures($functionSignatureMap, $functionSignatures) {
        
