@@ -77,6 +77,10 @@ $callGraph->computeRootNodes();
 
 $callGraph->printCallGraphRoots();
 
+$callGraph->computeLeafNodes();
+
+$callGraph->printCallGraphLeaves();
+
 // Perform taint analysis over the entire application.
 print "==== STARTING TAINT ANALYSIS ====\n";
 taintAnalysis($callGraph, $cfgInfoMap, $functionSignatures);
