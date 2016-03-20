@@ -6,6 +6,7 @@ include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/TaintAnalysis.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CallGraph/CallGraph.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CFG/CFG.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CFG/FunctionSignature.php');
+include_once(dirname(__FILE__) . '/TaintPHP/CFG/FunctionSignatureMap.php');
 
 $projectPath = $argv[1];
 
@@ -19,7 +20,7 @@ $Regex->rewind();
 $cfgInfoMap = array();
 
 // Map from function names to signatures.
-$functionSignatures = array();
+$functionSignatures = new FunctionSignatureMap();
 
 // Construct CFG map.
 while($Regex->valid()) {
@@ -29,8 +30,8 @@ while($Regex->valid()) {
 	// Obtain the CFGs of the main function, auxiliary functions and function signatures.
 	$fileCFGInfo = CFG::construct_file_cfgs($fileName);
 	$cfgInfoMap[$fileName] = $fileCFGInfo;
-	
-	addFunctionSignatures($functionSignatures, $fileCFGInfo->getFunctionRepresentations());
+
+	$functionSignatures->addAll($fileCFGInfo->getFunctionRepresentations());
 
 	$Regex->next();
 }
@@ -39,16 +40,9 @@ while($Regex->valid()) {
 $Regex->rewind();
 
 print "==== FUNCTION SIGNATURES ===\n";
-foreach($functionSignatures as $name => $signatures) {
-      print "Name: " . $name . "\n";
-      print "Signatures: ";
-      foreach($signatures as $signature) {
-          print $signature->printFunctionSignature() . ", ";
-      }
-      print "\n";
-}
+$functionSignatures->printFunctionSignatureMap();
 
-
+/*
 // Add nodes of the call graphs from the global set of function signatures defined in the program.
 // Analyze the entire program again to add edges and the nodes for non-user function calls.
 $callGraph = new CallGraph();
@@ -84,17 +78,6 @@ $callGraph->printCallGraphLeaves();
 // Perform taint analysis over the entire application.
 print "==== STARTING TAINT ANALYSIS ====\n";
 taintAnalysis($callGraph, $cfgInfoMap, $functionSignatures);
-
-// Function that adds the function signatures to the global map of function signatures.
-function addFunctionSignatures($functionSignatureMap, $functionSignatures) {
-       
-       foreach($functionSignatures as $name => $signature) {
-           if(!isset($functionSignatureMap[$name])) {
-	       $functionSignatureMap = array();
-	   }
-	   $functionSignatureMap[$name][] = $signature;
-       }
-}
-
+*/
 
 ?>
