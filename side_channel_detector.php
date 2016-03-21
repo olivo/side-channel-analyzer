@@ -42,7 +42,7 @@ $Regex->rewind();
 print "==== FUNCTION SIGNATURES ===\n";
 $functionSignatures->printFunctionSignatureMap();
 
-/*
+
 // Add nodes of the call graphs from the global set of function signatures defined in the program.
 // Analyze the entire program again to add edges and the nodes for non-user function calls.
 $callGraph = new CallGraph();
@@ -75,6 +75,7 @@ $callGraph->computeLeafNodes();
 
 $callGraph->printCallGraphLeaves();
 
+/*
 // Perform taint analysis over the entire application.
 print "==== STARTING TAINT ANALYSIS ====\n";
 taintAnalysis($callGraph, $cfgInfoMap, $functionSignatures);
