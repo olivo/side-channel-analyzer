@@ -1,0 +1,328 @@
+/* Feel free and change all what you want */
+/* $Id: scheme.css,v 1.12 2007/12/15 12:53:17 jact Exp $ */
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background: #fff;
+  color: #000;
+  font-family: "lucida sans unicode", "Trebuchet MS", trebuchet, verdana, helvetica, arial, sans-serif;
+}
+
+#header {
+  border-bottom: 1px solid #000;
+}
+
+#logo {
+  width: 300px;
+}
+
+#logo a img {
+  display: block;
+}
+
+#skip_navigation, hr {
+  display: none;
+  visibility: hidden;
+}
+
+#shortcuts {
+  position: absolute;
+  top: 1.5em;
+  right: 1em;
+  text-align: right;
+  font-size: 75%;
+  font-weight: bold;
+}
+
+#shortcuts li {
+  display: inline;
+  padding: 0 0 0 2em;
+}
+
+#tabs {
+  clear: both;
+  border-top: 1px solid #000;
+}
+
+#tabs li {
+  display: inline;
+  line-height: 2em;
+}
+
+#tabs li a {
+  border-right: 1px solid #000;
+  padding: 0.4em 1.5em 0.4em;
+  text-decoration: none;
+}
+
+#main {
+  width: 79%;
+  float: right;
+}
+
+#navigation {
+  width: 20%;
+  float: left;
+}
+
+/*#navigation ul {
+  margin: 1em 0 2em 0.7em;
+}*/
+
+#navigation ul li ul {
+  margin: 0 0.3em;
+}
+
+#clinic_info {
+  margin: 1em 0 1em 1em;
+  border: 1px solid #000;
+  padding: 2px;
+  line-height: 175%;
+}
+
+#content {
+  padding: 1em 2em;
+  line-height: 175%;
+  font-size: 80%;
+}
+
+#content h1, #content h2, #content h3 {
+  margin: 1em 0 0.5em;
+}
+
+#content h1 {
+  margin-top: 0;
+}
+
+#content li {
+  margin-left: 2em;
+}
+
+#content hr {
+  display: block;
+  visibility: visible;
+  height: 1px;
+  margin: 0.5em;
+  border: 1px solid #000;
+  background: #000;
+  color: #000;
+}
+
+#footer {
+  clear: both;
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
+  padding: 1em 2em;
+  font-size: 80%;
+  line-height: 180%;
+}
+
+#footer ul {
+  list-style-type: none;
+  text-align: center;
+}
+
+#logos a, #mini_logos a {
+  text-decoration: none;
+}
+
+#logos {
+  width: 32%;
+  float: left;
+}
+
+#sf_links {
+  width: 33%;
+  float: left;
+  line-height: 225%;
+}
+
+#mini_logos {
+  width: 32%;
+  float: right;
+  line-height: 225%;
+}
+
+#app_info {
+  clear: both;
+  padding-top: 1em;
+  text-align: center;
+}
+
+a img {
+  border: none;
+}
+
+pre {
+  font-family: "Lucida Sans Typewriter", "Courier New", monospace;
+}
+
+fieldset {
+  margin: 0.5em;
+  border: 1px solid #000;
+  padding: 1em;
+  line-height: 250%;
+}
+
+legend {
+  border: 1px solid #000;
+  padding: 0 0.3em;
+  font-weight: bold;
+}
+
+fieldset label {
+  display: block;
+  width: 40%;
+  float: left;
+  text-align: right;
+  padding-right: 5px;
+  cursor: pointer;
+}
+
+fieldset .action {
+  clear: both;
+  margin: 1em 0;
+  text-align: center;
+}
+
+fieldset span.error {
+  display: block;
+  margin: 2px 0 16px;
+  border-bottom: 1px solid #fff;
+}
+
+.error label {
+  cursor: pointer;
+}
+
+.previous_file {
+  margin-left: 41%;
+}
+
+.required {
+  font-weight: bold;
+}
+
+fieldset#dump_tables {
+  width: 35%;
+  float: left;
+  margin-right: 1em;
+}
+
+fieldset#dump_options label,
+fieldset#dump_extended label {
+  display: inline;
+  float: none;
+}
+
+fieldset#new_user label {
+  width: 55%;
+}
+
+fieldset.large_area label {
+  text-align: left;
+}
+
+table {
+  margin: 0.5em 0;
+  border-collapse: collapse;
+  border: 1px solid #000;
+}
+
+th, td {
+  border: 1px solid #000;
+  padding: 0.3em;
+}
+
+th {
+  background: #000;
+  color: #fff;
+  font-weight: bold;
+}
+
+tr {
+  background: #fff;
+  color: #000;
+}
+
+.even {
+  background: #dadada;
+  color: #000;
+}
+
+tr.odd:hover,
+tr.even:hover {
+  background: #BEBEBE;
+  color: #fff;
+}
+
+.center table {
+  margin: 0 auto;
+  text-align: left;
+}
+
+.center {
+  text-align: center;
+}
+
+.right {
+  text-align: right;
+}
+
+.left {
+  text-align: left;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+/* clearfix */
+.clearfix {
+  display: inline-block;
+  width: 100%;
+}
+
+/* Hide from IE-mac \*/
+* html .clearfix {
+  height: 1%;
+  width: auto;
+}
+
+.clearfix {
+  display: table;
+}
+/* End hide from IE-mac */
+
+.error, .warning, .info, .hint {
+  margin: 0.5em 0;
+  padding: 6px 0 6px 40px;
+  font-weight: bold;
+}
+
+.error {
+  background: #FF8181 url(../img/msg_error.png) 2px center no-repeat;
+  color: #fff;
+}
+
+.warning {
+  border: 1px solid #BDB76B;
+  background: #FFFF9A url(../img/msg_warning.png) 2px center no-repeat;
+  color: #000;
+}
+
+.info {
+  border: 1px solid #DFCBB6;
+  background: #FAF2EB url(../img/msg_info.png) 2px center no-repeat;
+  color: #000;
+}
+
+.hint {
+  border: 1px solid #DFCBB6;
+  background: #FAF2EB url(../img/msg_hint.png) 2px center no-repeat;
+  color: #000;
+}

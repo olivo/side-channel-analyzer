@@ -1,0 +1,122 @@
+/**
+ * wizard.css
+ *
+ * Contains the css styles of OpenClinic Install Wizard
+ *
+ * Licensed under the GNU GPL. For full terms see the file LICENSE.
+ *
+ * @package   OpenClinic
+ * @copyright 2002-2013 jact
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL
+ * @version   CVS: $Id: wizard.css,v 1.8 2013/02/02 18:33:24 jact Exp $
+ * @author    jact <jachavar@gmail.com>
+ * @since     0.5
+ */
+
+body {
+  background: #3299cc;
+  color: #000;
+  font-family: verdana, helvetica, arial, sans-serif;
+}
+#window {
+  border: 2px solid #3cb371;
+  margin: 10px 20px;
+  background: #dcdcdc;
+  color: #000;
+}
+h1 {
+  font-family: helvetica, arial, verdana, sans-serif;
+  font-size: 24px;
+  border-bottom: 2px solid #3cb371;
+  color: #fff;
+  background: #99cc32 url(../img/install_software.png) center right no-repeat;
+  margin: 0;
+  padding: 12px 10px;
+}
+h2 {
+  clear: both;
+  font-size: 18px;
+  margin: 0;
+  padding: 5px;
+}
+h3 {
+  font-size: 14px;
+  padding: 5px;
+}
+p, li, blockquote, table {
+  font-size: 12px;
+}
+p {
+  padding: 0 10px;
+}
+#status {
+  clear: both;
+  margin: 0;
+  padding: 2px;
+  border-top: 2px solid #3cb371;
+  font-weight: bold;
+  background: #e6e8fa;
+  color: #3299cc;
+  white-space: nowrap;
+}
+#buttons {
+  clear: both;
+}
+#buttons .back {
+  float: left;
+  margin: 7px 5px;
+  width: 100px; /* for IE 5.0 */
+}
+#buttons .next {
+  float: right;
+  margin: 7px 5px;
+  width: 100px; /* for IE 5.0 */
+}
+html>body #buttons .back, html>body #buttons .next {
+  width: auto; /* for Gecko browsers */
+}
+.back img, .next span {
+  float: left;
+}
+.back span, .next img {
+  float: right;
+}
+.back span, .next span {
+  line-height: 20px;
+  padding: 0 5px;
+}
+a, a:link {
+  color: #3299CC;
+  background: #dcdcdc;
+  font-weight: bold;
+}
+a:hover {
+  background: #3299CC;
+  color: #dcdcdc;
+}
+button {
+  font-family: helvetica, arial, sans-serif;
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+  background: #99cc32;
+  color: #fff;
+  border: 1px solid #fff;
+}
+.note {
+  font-weight: bold;
+  color: #dc143c;
+  background: transparent;
+}
+.error {
+  font-size: 16px;
+  color: #dc143c;
+  background: transparent;
+}
+.center {
+  text-align: center;
+}
+.center table {
+  margin: 0 auto;
+  text-align: left;
+}
