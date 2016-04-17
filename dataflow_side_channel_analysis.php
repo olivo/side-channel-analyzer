@@ -1,13 +1,19 @@
 <?php
 
+include_once(dirname(__FILE__) . '/TaintPHP/CallGraph/CallGraph.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CFG/CFGNode.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CFG/CFGNodeCond.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CFG/CFGNodeStmt.php');
 include_once(dirname(__FILE__) . '/TaintPHP/CFG/StmtProcessing.php');
 include_once(dirname(__FILE__) . '/TaintPHP/PHP-Parser-master/lib/bootstrap.php');
 include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/CFGTaintMap.php');
+include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/TaintMap.php');
 include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/TaintAnalysis.php');
 
+// Performs side channel analysis across the entire application.
+function sideChannelAnalysis($taintMap, $callGraph, $cfgInfoMap, $functionSignatures){
+
+}
 
 // TODO: Hangs on openlinic/layout/admin.php
 

@@ -79,4 +79,8 @@ $callGraph->printCallGraphLeaves();
 print "==== STARTING TAINT ANALYSIS ====\n";
 $taintMap = taintAnalysis($callGraph, $cfgInfoMap, $functionSignatures);
 
+// Perform side channel analysis over the entire application.
+print "==== STARTING SIDE CHANNEL ANALYSIS ====\n";
+sideChannelAnalysis($taintMap, $callGraph, $cfgInfoMap, $functionSignatures);
+
 ?>
