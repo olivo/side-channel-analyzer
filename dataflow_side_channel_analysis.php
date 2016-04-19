@@ -13,6 +13,52 @@ include_once(dirname(__FILE__) . '/TaintPHP/TaintAnalysis/TaintAnalysis.php');
 // Performs side channel analysis across the entire application.
 function sideChannelAnalysis($taintMap, $callGraph, $cfgInfoMap, $functionSignatures){
 
+	 // Create a queue of call graph nodes of the functions to analyze.
+	 $callGraphNodeQueue = new SplQueue();
+
+	 // Create a set of call graph nodes currently in the queue,
+	 // to prevent nodes from being added multiple times.
+	 $callGraphNodeSet = new SplObjectStorage();
+
+	 // Initially, add all the call graph leaves.
+	 foreach($callGraph->getLeaves() as $callGraphNode) {
+	     $callGraphNodeQueue->enqueue($callGraphNode);
+	     $callGraphNodeSet->attach($callGraphNode);
+	 }
+
+	 /*
+	 // Process the nodes while the queue is not empty.
+	 while(!$callGraphNodeQueue->isEmpty()) {
+
+	     $callGraphNode = $callGraphNodeQueue->dequeue();
+	     //$callGraphNodeSet->detach($callGraphNode);
+
+	     $signature = $callGraphNode->getFunctionRepresentation();
+	     $fileName = $signature->getFileName();
+
+	     // Process the CFG of a function if it's user defined.
+	     if($fileName && isset($cfgInfoMap[$fileName])) {
+	         $fileCFGInfo = $cfgInfoMap[$fileName];
+	         $cfg = $fileCFGInfo->getCFG($signature);
+		 print "Starting taint analysis on function with signature: " .
+                       ($signature->toString()) . "\n";
+	         $cfgTaintMap = cfgTaintAnalysis($cfg, $signature, $cfgInfoMap, $functionSignatures);
+		 print "Finished taint analysis on function with signature: " .
+                       ($signature->toString()) . "\n";
+		 $taintMap->put($signature->toString(), $cfgTaintMap);
+	     }
+
+	     // Add the predecessors in the call graph, if they're not already
+	     // present in the queue.
+	     foreach($callGraphNode->getPredecessors() as $predecessor) {
+	            if(!$callGraphNodeSet->contains($predecessor)) {
+		    	    
+		        $callGraphNodeSet->attach($predecessor);
+			$callGraphNodeQueue->enqueue($predecessor);	        
+		    }
+	     }
+	 }
+*/
 }
 
 // TODO: Hangs on openlinic/layout/admin.php
