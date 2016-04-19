@@ -26,7 +26,6 @@ function sideChannelAnalysis($taintMap, $callGraph, $cfgInfoMap, $functionSignat
 	     $callGraphNodeSet->attach($callGraphNode);
 	 }
 
-	 /*
 	 // Process the nodes while the queue is not empty.
 	 while(!$callGraphNodeQueue->isEmpty()) {
 
@@ -40,12 +39,12 @@ function sideChannelAnalysis($taintMap, $callGraph, $cfgInfoMap, $functionSignat
 	     if($fileName && isset($cfgInfoMap[$fileName])) {
 	         $fileCFGInfo = $cfgInfoMap[$fileName];
 	         $cfg = $fileCFGInfo->getCFG($signature);
-		 print "Starting taint analysis on function with signature: " .
+		 print "Starting side channel analysis on function with signature: " .
                        ($signature->toString()) . "\n";
-	         $cfgTaintMap = cfgTaintAnalysis($cfg, $signature, $cfgInfoMap, $functionSignatures);
-		 print "Finished taint analysis on function with signature: " .
+	         //$cfgTaintMap = cfgTaintAnalysis($cfg, $signature, $cfgInfoMap, $functionSignatures);
+		 print "Finished side channel analysis on function with signature: " .
                        ($signature->toString()) . "\n";
-		 $taintMap->put($signature->toString(), $cfgTaintMap);
+		 //$taintMap->put($signature->toString(), $cfgTaintMap);
 	     }
 
 	     // Add the predecessors in the call graph, if they're not already
@@ -58,7 +57,6 @@ function sideChannelAnalysis($taintMap, $callGraph, $cfgInfoMap, $functionSignat
 		    }
 	     }
 	 }
-*/
 }
 
 // TODO: Hangs on openlinic/layout/admin.php
