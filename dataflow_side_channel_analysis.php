@@ -39,6 +39,7 @@ function sideChannelAnalysis($taintMap, $callGraph, $cfgInfoMap, $functionSignat
 	     if($fileName && isset($cfgInfoMap[$fileName])) {
 	         $fileCFGInfo = $cfgInfoMap[$fileName];
 	         $cfg = $fileCFGInfo->getCFG($signature);
+		 $cfgTaintMap = $taintMap->get($signature->toString());
 		 print "Starting side channel analysis on function with signature: " .
                        ($signature->toString()) . "\n";
 	         //$cfgTaintMap = cfgTaintAnalysis($cfg, $signature, $cfgInfoMap, $functionSignatures);
