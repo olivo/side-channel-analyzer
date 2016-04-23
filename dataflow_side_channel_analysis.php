@@ -42,7 +42,8 @@ function sideChannelAnalysis($taintMap, $callGraph, $cfgInfoMap, $functionSignat
 		 $cfgTaintMap = $taintMap->get($signature->toString());
 		 print "Starting side channel analysis on function with signature: " .
                        ($signature->toString()) . "\n";
-		 dataflow_side_channel_detection($fileCFGInfo, $cfgTaintMap);
+		 cfg_dataflow_side_channel_detection($cfg, $cfgTaintMap);
+		 //dataflow_side_channel_detection($fileCFGInfo, $cfgTaintMap);
 	         //$cfgTaintMap = cfgTaintAnalysis($cfg, $signature, $cfgInfoMap, $functionSignatures);
 		 print "Finished side channel analysis on function with signature: " .
                        ($signature->toString()) . "\n";
