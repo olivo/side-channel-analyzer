@@ -30,7 +30,6 @@ function sideChannelAnalysis($taintMap, $callGraph, $cfgInfoMap, $functionSignat
 	 while(!$callGraphNodeQueue->isEmpty()) {
 
 	     $callGraphNode = $callGraphNodeQueue->dequeue();
-	     //$callGraphNodeSet->detach($callGraphNode);
 
 	     $signature = $callGraphNode->getFunctionRepresentation();
 	     $fileName = $signature->getFileName();
@@ -43,11 +42,8 @@ function sideChannelAnalysis($taintMap, $callGraph, $cfgInfoMap, $functionSignat
 		 print "Starting side channel analysis on function with signature: " .
                        ($signature->toString()) . "\n";
 		 cfg_dataflow_side_channel_detection($cfg, $cfgTaintMap);
-		 //dataflow_side_channel_detection($fileCFGInfo, $cfgTaintMap);
-	         //$cfgTaintMap = cfgTaintAnalysis($cfg, $signature, $cfgInfoMap, $functionSignatures);
 		 print "Finished side channel analysis on function with signature: " .
                        ($signature->toString()) . "\n";
-		 //$taintMap->put($signature->toString(), $cfgTaintMap);
 	     }
 
 	     // Add the predecessors in the call graph, if they're not already
