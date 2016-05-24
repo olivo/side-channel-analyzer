@@ -10,7 +10,7 @@ include_once(dirname(__FILE__) . '/TaintPHP/CFG/FunctionSignatureMap.php');
 
 $projectPath = $argv[1];
 
-// Iterating over all php files in a project path.
+// Iterating over all PHP files in a project path.
 $Directory = new RecursiveDirectoryIterator($projectPath);
 $Iterator = new RecursiveIteratorIterator($Directory);
 $Regex = new RegexIterator($Iterator, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
@@ -82,5 +82,4 @@ $taintMap = taintAnalysis($callGraph, $cfgInfoMap, $functionSignatures);
 // Perform side channel analysis over the entire application.
 print "==== STARTING SIDE CHANNEL ANALYSIS ====\n";
 sideChannelAnalysis($taintMap, $callGraph, $cfgInfoMap, $functionSignatures);
-
 ?>
